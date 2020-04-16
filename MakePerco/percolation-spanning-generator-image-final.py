@@ -4,10 +4,7 @@
 # (reduced memory usage compare to the first version) 
 """
 
-# %%
-"""
-This code generate a dataset used for the Keras code Keras_Percolation_spanning-density. In input we have a list of density for which we want to generate percolation and then we sort them depending on the spanning or not of the data.
-"""
+
 
 # %%
 %matplotlib inline
@@ -34,10 +31,6 @@ def intersection(lst1, lst2):
 def intersection1(lst1, lst2): 
     return list(set(lst1) & set(lst2)) 
 
-# %%
-"""
-Here we have a function creating a directory at the chosen path.
-"""
 
 # %%
 def create_directory(path):
@@ -53,10 +46,6 @@ def create_directory(path):
     
     return
 
-# %%
-"""
-this is a function finding the whole cluster given a single starting pixel
-"""
 
 # %%
 def fill4(x, y, n_clusters, N, A, cluster, sizes):
@@ -186,7 +175,7 @@ print(os.getcwd())
 # %%
 M=[x/1000 for x in range(0,1000)]
 M=M[1:]
-M
+
 
 # %%
 percolation_density(10,M,100,1) 
