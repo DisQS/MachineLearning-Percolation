@@ -108,8 +108,8 @@ def percolation(im,p,L,seed):
             max_size = max(all_sizes.keys())
 
         #create new figures
-        fig = pl.figure()
-        #fig =pl.figure(figsize=(L/my_dpi, L/my_dpi), dpi=my_dpi)
+        #fig = pl.figure()
+        fig =pl.figure(figsize=(L/my_dpi, L/my_dpi), dpi=my_dpi)
         pl.axis('off')
         pl.imshow(cluster,cmap='nipy_spectral')
 
