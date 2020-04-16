@@ -7,7 +7,6 @@
 
 
 # %%
-%matplotlib inline
 import matplotlib.pyplot as pl
 import numpy as np
 from collections import Counter
