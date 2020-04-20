@@ -119,10 +119,16 @@ def percolation(im,p,L,seed):
         last_line=(y for y in cluster[len(cluster[0])-1,:])
         first_column=(w for w in cluster[:,0])
         last_column=(z for z in cluster[:,len(cluster)-1])
+        
+#        first_line=(x for x in cluster[0][:])
+#        last_line=(y for y in cluster[-1][:])
+#        first_column=(w for w in cluster[:,0])
+#        last_column=(z for z in cluster[:,-1])
 
 
-        top=set(first_line).intersection(set(last_line))
-        side=set(first_column).intersection(set(last_column))
+
+         top=set(x for x in cluster[0][:]).intersection(set(y for y in cluster[-1][:]))
+         side=set(w for w in cluster[:,0]).intersection(set(z for z in cluster[:,-1]))
 
         if (top!=set() or side!=set()):
             #os.chdir('percolating')
