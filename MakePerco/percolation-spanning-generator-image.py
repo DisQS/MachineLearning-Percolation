@@ -146,34 +146,37 @@ def percolation(im,p,L,seed):
 # %%
 def percolation_density(im,M,L,seed):
     import os
+    create_directory('L'+str(L)+'_N'+str(im))
+    os.chdir('L'+str(L)+'_N'+str(im))
     for p in M:
-        create_directory('p'+str(p))
-        os.chdir('p'+str(p))
-        
-        if os.path.exists('L'+str(L)+'_N'+str(im)):
-            print('The file already exists')
+        if os.path.exists('p'+str(p)):
+            print('The file '+'p '+str(p)+' already exists')
             print ("Creation of the directory failed")
-            os.chdir('..')
             continue
         else:
-            create_directory('L'+str(L)+'_N'+str(im))
-            os.chdir('L'+str(L)+'_N'+str(im))
+            create_directory('p'+str(p))
+            os.chdir('p'+str(p))
             percolation(im,p,L,seed)
             os.chdir('..')
-            os.chdir('..')
+    os.chdir('..')     
     return
+
+            
+        
     
 
 # %%
-create_directory('images_perco')
-os.chdir('images_perco')
+create_directory('images_perco_density')
+os.chdir('images_perco_density')
 
 # %%
 print(os.getcwd())
 
 # %%
-M=[x/1000 for x in range(0,1000)]
+M=[x/1000 for x in range(0,1000,100)]
 M=M[1:]
+N=[x/10000 for x in range(5920,5942,4)]
+
 
 
 # %%
