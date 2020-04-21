@@ -125,10 +125,8 @@ def percolation(im,p,L,seed):
 #        first_column=(w for w in cluster[:,0])
 #        last_column=(z for z in cluster[:,-1])
 
-
-
-         top=set(x for x in cluster[0][:]).intersection(set(y for y in cluster[-1][:]))
-         side=set(w for w in cluster[:,0]).intersection(set(z for z in cluster[:,-1]))
+        top=set(x for x in cluster[0][:]).intersection(set(y for y in cluster[-1][:]))
+        side=set(w for w in cluster[:,0]).intersection(set(z for z in cluster[:,-1]))
 
         if (top!=set() or side!=set()):
             #os.chdir('percolating')
@@ -186,7 +184,7 @@ N=[x/10000 for x in range(5920,5942,4)]
 
 
 # %%
-percolation_density(10,M,100,1) 
+percolation_density(10,M,1000,20) 
 #1: number of images for a given p
 #2:list of p
 #3: side length of the square lattice
