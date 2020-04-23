@@ -176,7 +176,7 @@ def percolation(im,p,L,seed):
         if (top!=set() or side!=set()):
             #os.chdir('percolating')
             fig.savefig('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_top_'+str(top)+'_side_'+str(side)+'_size_max_clus'+str(max_size)+'.png',bbox_inches='tight', pad_inches = 0,dpi=my_dpi)
-            rgba1=cmap2(list(top)) #rgb color  code with alpha
+            rgba1=cmap2(list(top)) #rgb color tuple + alpha
             rgba2=cmap2(list(side))
             f=open('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_top_'+str(top)+'_side_'+str(side)+'_size_max_clus'+str(max_size)+'.txt', "w+")
             f.write('Total number of cluster= '+ repr(n_clusters)+'\n')
