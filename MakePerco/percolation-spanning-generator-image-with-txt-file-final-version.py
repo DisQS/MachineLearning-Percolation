@@ -187,9 +187,6 @@ def percolation(im,p,L,seed):
             f.write('color of the spanning cluster = '+repr(rgba1)+"\n")
             f.write('color of the spanning cluster = '+repr(rgba2)+"\n")
             f.close()
-
-#            np.savetxt('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_size_max_clus'+str(max_size)+'.txt',cluster, newline="\n",fmt='%.5e',
-#                      header='density:'+str(p)+', size of each cluster:'+str(all_sizes)+'max cluster'+str(max_size))
             #os.chdir('..')
         else:
             #os.chdir('not_percolating')
@@ -199,9 +196,6 @@ def percolation(im,p,L,seed):
             g.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size)+'\n')
             g.write('Sizes of each clusters (number associated to the cluster: number of occupied sites)= ' +repr(sizes)+"\n")
             g.close()
-            #g.write('number of cluster=', n_clusters)
-#            np.savetxt('pc_0__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_.txt',cluster, newline="\n",fmt='%.5e',
-#                      header='density:'+str(p)+', size of each cluster:'+str(all_sizes)+'max cluster'+str(max_size))
             #os.chdir('..')
 
         pl.close('all')
@@ -238,8 +232,7 @@ def percolation_density(im,M,L,seed):
             os.chdir('..')
             if new_im!=0:
                 print(new_im, 'new images were created')
-        #os.chdir('..')
-            #continue
+        
         else:
             create_directory('p'+str(p))
             os.chdir('p'+str(p))
