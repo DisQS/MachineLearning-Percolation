@@ -7,7 +7,6 @@
 
 
 # %%
-%matplotlib inline
 import matplotlib.pyplot as pl
 import numpy as np
 from collections import Counter
@@ -109,8 +108,8 @@ def percolation(im,p,L,seed):
             max_size = max(all_sizes.keys())
 
         #create new figures
-        fig = pl.figure()
-        #fig =pl.figure(figsize=(L/my_dpi, L/my_dpi), dpi=my_dpi)
+        #fig = pl.figure()
+        fig =pl.figure(figsize=(L/my_dpi, L/my_dpi), dpi=my_dpi)
         pl.axis('off')
         pl.imshow(cluster,cmap='nipy_spectral')
 
@@ -120,10 +119,16 @@ def percolation(im,p,L,seed):
         last_line=(y for y in cluster[len(cluster[0])-1,:])
         first_column=(w for w in cluster[:,0])
         last_column=(z for z in cluster[:,len(cluster)-1])
+        
+#        first_line=(x for x in cluster[0][:])
+#        last_line=(y for y in cluster[-1][:])
+#        first_column=(w for w in cluster[:,0])
+#        last_column=(z for z in cluster[:,-1])
 
 
-        top=set(first_line).intersection(set(last_line))
-        side=set(first_column).intersection(set(last_column))
+
+         top=set(x for x in cluster[0][:]).intersection(set(y for y in cluster[-1][:]))
+         side=set(w for w in cluster[:,0]).intersection(set(z for z in cluster[:,-1]))
 
         if (top!=set() or side!=set()):
             #os.chdir('percolating')
@@ -147,34 +152,37 @@ def percolation(im,p,L,seed):
 # %%
 def percolation_density(im,M,L,seed):
     import os
+    create_directory('L'+str(L)+'_N'+str(im))
+    os.chdir('L'+str(L)+'_N'+str(im))
     for p in M:
-        create_directory('p'+str(p))
-        os.chdir('p'+str(p))
-        
-        if os.path.exists('L'+str(L)+'_N'+str(im)):
-            print('The file already exists')
+        if os.path.exists('p'+str(p)):
+            print('The file '+'p '+str(p)+' already exists')
             print ("Creation of the directory failed")
-            os.chdir('..')
             continue
         else:
-            create_directory('L'+str(L)+'_N'+str(im))
-            os.chdir('L'+str(L)+'_N'+str(im))
+            create_directory('p'+str(p))
+            os.chdir('p'+str(p))
             percolation(im,p,L,seed)
             os.chdir('..')
-            os.chdir('..')
+    os.chdir('..')     
     return
+
+            
+        
     
 
 # %%
-create_directory('images_perco')
-os.chdir('images_perco')
+create_directory('images_perco_density')
+os.chdir('images_perco_density')
 
 # %%
 print(os.getcwd())
 
 # %%
-M=[x/1000 for x in range(0,1000)]
+M=[x/1000 for x in range(0,1000,100)]
 M=M[1:]
+N=[x/10000 for x in range(5920,5942,4)]
+
 
 
 # %%
