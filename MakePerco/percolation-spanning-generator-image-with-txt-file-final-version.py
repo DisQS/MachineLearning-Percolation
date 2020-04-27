@@ -191,7 +191,6 @@ def percolation(im,p,L,seed):
         if (top!=set() or side!=set()):
             #os.chdir('percolating')
             fig.savefig('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_top_'+str(top)+'_side_'+str(side)+'_size_max_clus'+str(max_size)+'.png',bbox_inches='tight', pad_inches = 0,dpi=my_dpi)
-<<<<<<< HEAD
             size_spanning
             size_side_spanning=0
             size_top_spanning=0
@@ -217,10 +216,10 @@ def percolation(im,p,L,seed):
                 size_spanning_cluster(top,cluster)
                 size_top_spanning=size_spanning
                 rgba1=cmap2(next(iter(top)))
-=======
+
             rgba1=cmap2(list(top)) #rgb color tuple + alpha
             rgba2=cmap2(list(side))
->>>>>>> c228e19e0d672fad0d052d6e3ae1d8e26b6d28e1
+
             f=open('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_top_'+str(top)+'_side_'+str(side)+'_size_max_clus'+str(max_size)+'.txt', "w+")
             f.write('Total number of cluster= '+ repr(n_clusters)+'\n')
             f.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size)+'\n')
