@@ -117,6 +117,21 @@ Function generating im image at density p with N=LxL sites.
 """
 
 # %%
+def size_spanning_cluster(spanning_set, cluster):
+    global size_spanning
+    size_spanning=0
+    nnz1=cluster.nonzero()
+    for k in range(len(spanning_set)):
+        for i, j in zip(*nnz1):
+            if cluster[i,j] ==list(spanning_set)[k]:
+                size_spanning+=1
+    
+
+
+# %%
+
+
+
 def percolation(im,p,L,seed):
     my_dpi=96 # DPI of the monitor
     import time
@@ -141,7 +156,7 @@ def percolation(im,p,L,seed):
                 n_clusters += 1
         new_mapping = np.arange(0,n_clusters)
         np.random.shuffle(new_mapping)
-        cluster = np.array([new_mapping[v] if not v == -1 else np.nan for v in cluster.flat]).reshape(L,L)
+        cluster = np.array([new_mapping[v]/(n_clusters-1) if not v == -1 else np.nan for v in cluster.flat]).reshape(L,L)
 
             
         all_sizes = Counter(list(sizes.values()))
@@ -168,28 +183,48 @@ def percolation(im,p,L,seed):
         top=set(x for x in cluster[0][:]).intersection(set(y for y in cluster[-1][:]))
         side=set(w for w in cluster[:,0]).intersection(set(z for z in cluster[:,-1]))
         
-        if np.nan in top:
-            top.remove(np.nan)
-        if np.nan in side:
-            side.remove(np.nan)
+#        if np.nan in top:
+#            top.remove(np.nan)
+#        if np.nan in side:
+#            side.remove(np.nan)
 
         if (top!=set() or side!=set()):
             #os.chdir('percolating')
             fig.savefig('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_top_'+str(top)+'_side_'+str(side)+'_size_max_clus'+str(max_size)+'.png',bbox_inches='tight', pad_inches = 0,dpi=my_dpi)
-            rgba1=cmap2(list(top)) #rgb color  code with alpha
-            rgba2=cmap2(list(side))
+            size_spanning
+            size_side_spanning=0
+            size_top_spanning=0
+            rgba1=0
+            rgba2=0
+            
+            
+                
+            if side!=set() and top!=set():
+                size_spanning_cluster(side,cluster)
+                size_side_spanning= size_spanning
+                rgba2=cmap2(next(iter(side)))
+                size_spanning_cluster(top,cluster)
+                size_top_spanning=size_spanning
+                rgba1=cmap2(next(iter(top)))
+                
+            elif side!=set():
+                size_spanning_cluster(side,cluster)
+                size_side_spanning= size_spanning
+                rgba2=cmap2(next(iter(side)))  #rgb color tuple + alpha
+                 
+            else:
+                size_spanning_cluster(top,cluster)
+                size_top_spanning=size_spanning
+                rgba1=cmap2(next(iter(top)))
             f=open('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_top_'+str(top)+'_side_'+str(side)+'_size_max_clus'+str(max_size)+'.txt', "w+")
             f.write('Total number of cluster= '+ repr(n_clusters)+'\n')
             f.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size)+'\n')
-            f.write('Sizes of each clusters (number associated to the cluster: number of occupied sites)= ' +repr(sizes)+"\n")
-            f.write('Spanning cluster top-bottom = '+ repr(top)+"\n")
-            f.write('Spanning cluster side-side= '+ repr(side)+"\n")
+            f.write('Number of clusters with given size= ' +repr(sizes)+"\n")
+            f.write('Spanning cluster top-bottom = '+ repr(top)+' = '+repr(size_top_spanning)+"\n")
+            f.write('Spanning cluster side-side= '+ repr(side)+ ' = '+repr(size_side_spanning)+"\n")
             f.write('color of the spanning cluster = '+repr(rgba1)+"\n")
             f.write('color of the spanning cluster = '+repr(rgba2)+"\n")
             f.close()
-
-#            np.savetxt('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_size_max_clus'+str(max_size)+'.txt',cluster, newline="\n",fmt='%.5e',
-#                      header='density:'+str(p)+', size of each cluster:'+str(all_sizes)+'max cluster'+str(max_size))
             #os.chdir('..')
         else:
             #os.chdir('not_percolating')
@@ -199,9 +234,6 @@ def percolation(im,p,L,seed):
             g.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size)+'\n')
             g.write('Sizes of each clusters (number associated to the cluster: number of occupied sites)= ' +repr(sizes)+"\n")
             g.close()
-            #g.write('number of cluster=', n_clusters)
-#            np.savetxt('pc_0__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_.txt',cluster, newline="\n",fmt='%.5e',
-#                      header='density:'+str(p)+', size of each cluster:'+str(all_sizes)+'max cluster'+str(max_size))
             #os.chdir('..')
 
         pl.close('all')
@@ -238,8 +270,7 @@ def percolation_density(im,M,L,seed):
             os.chdir('..')
             if new_im!=0:
                 print(new_im, 'new images were created')
-        #os.chdir('..')
-            #continue
+        
         else:
             create_directory('p'+str(p))
             os.chdir('p'+str(p))
@@ -256,8 +287,8 @@ def percolation_density(im,M,L,seed):
     
 
 # %%
-create_directory('images_perco_density')
-os.chdir('images_perco_density')
+create_directory('images_perco_density_new')
+os.chdir('images_perco_density_new')
 
 # %%
 print(os.getcwd())
