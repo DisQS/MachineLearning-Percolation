@@ -6,7 +6,7 @@
 
 
 
-# %%
+###############################################################################
 
 import matplotlib.pyplot as pl
 import numpy as np
@@ -18,7 +18,7 @@ import sys
 import numpy
 numpy.set_printoptions(threshold=sys.maxsize)
 
-# %%
+###############################################################################
 """
 Function giving the intersection set of two list given in input
 """
@@ -26,7 +26,7 @@ def list_dir(path):
     for name in os.listdir(path):
         yield name
 
-
+###############################################################################
 def check_name(path):
     #print(L)
     import re
@@ -57,14 +57,12 @@ def check_name(path):
         j+=1
     #print(Z)
     max_seed=max(Z)
-
-    
+   
     #print(max_seed)
     
     return max_seed
     
-
-# %%
+###############################################################################
 def intersection(lst1, lst2): 
     lst3 = [value for value in lst1 if value in lst2] 
     return lst3 
@@ -72,8 +70,7 @@ def intersection(lst1, lst2):
 def intersection1(lst1, lst2): 
     return list(set(lst1) & set(lst2)) 
 
-
-# %%
+###############################################################################
 def create_directory(path):
     import os
     #print(os.getcwd())
@@ -87,8 +84,7 @@ def create_directory(path):
     
     return
 
-
-# %%
+###############################################################################
 def fill(x, y, n_clusters, N, A, cluster, sizes):
     
     stack = [(x,y)] #last occupied site
@@ -111,12 +107,12 @@ def fill(x, y, n_clusters, N, A, cluster, sizes):
                 stack.append((x-1,y))
         
 
-# %%
+###############################################################################
 """
 Function generating im image at density p with N=LxL sites.
 """
 
-# %%
+###############################################################################
 def size_spanning_cluster(spanning_set, cluster):
     global size_spanning
     size_spanning=0
@@ -126,21 +122,14 @@ def size_spanning_cluster(spanning_set, cluster):
             if cluster[i,j] ==list(spanning_set)[k]:
                 size_spanning+=1
     
-
-
-# %%
-
-
-
+###############################################################################
 def percolation(im,p,L,seed):
     my_dpi=96 # DPI of the monitor
     import time
     start=time.time()
     #create_directory('percolating')   #if we want to classify them inside each density directory
     #create_directory('not_percolating')
-    
-     
-           
+               
     for t in range(im):
         seed1=np.random.seed(seed)
         # site occupation matrix
@@ -156,8 +145,8 @@ def percolation(im,p,L,seed):
                 n_clusters += 1
         new_mapping = np.arange(0,n_clusters)
         np.random.shuffle(new_mapping)
-        cluster = np.array([new_mapping[v]/(n_clusters-1) if not v == -1 else np.nan for v in cluster.flat]).reshape(L,L)
-
+        cluster = np.array([new_mapping[v]/(n_clusters-1) \
+                            if not v == -1 else np.nan for v in cluster.flat]).reshape(L,L)
             
         all_sizes = Counter(list(sizes.values()))
 
@@ -220,7 +209,8 @@ def percolation(im,p,L,seed):
             rgba1=cmap2(list(top)) #rgb color tuple + alpha
             rgba2=cmap2(list(side))
 
-            f=open('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_top_'+str(top)+'_side_'+str(side)+'_size_max_clus'+str(max_size)+'.txt', "w+")
+            f=open('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_top_'+str(top)+\
+                   '_side_'+str(side)+'_size_max_clus'+str(max_size)+'.txt', "w+")
             f.write('Total number of cluster= '+ repr(n_clusters)+'\n')
             f.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size)+'\n')
             f.write('Number of clusters with given size= ' +repr(sizes)+"\n")
@@ -232,7 +222,8 @@ def percolation(im,p,L,seed):
             #os.chdir('..')
         else:
             #os.chdir('not_percolating')
-            fig.savefig('pc_0__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_.png', bbox_inches='tight',pad_inches = 0,dpi=my_dpi)
+            fig.savefig('pc_0__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_.png', bbox_inches='tight',\
+                        pad_inches = 0,dpi=my_dpi)
             g=open('pc_0__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_.txt', "w+")
             g.write('Total number of cluster= '+ repr(n_clusters)+'\n')
             g.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size)+'\n')
@@ -248,11 +239,7 @@ def percolation(im,p,L,seed):
 
     return
 
-
-
-
-
-# %%
+###############################################################################
 def percolation_density(im,M,L,seed):
     import os
     create_directory('L'+str(L))
@@ -285,28 +272,44 @@ def percolation_density(im,M,L,seed):
     total_time=end1-start1
     print("Images generated in : ", total_time, "seconds")
     return
+###############################################################################
 
+###############################################################################
             
-        
+if ( len(sys.argv) == 7 ):
+    #SEED = 101
+    SEED = int(sys.argv[1])
+    lattice_size = int(sys.argv[2])
+    perco_init = int(sys.argv[3]) 
+    perco_final = int(sys.argv[4])
+    perco_inc = int(sys.argv[5])
+    number_configs = int(sys.argv[6])
+
+    perco_list=[val/10000 for val in range(perco_init,perco_final,perco_inc)]
+            
+    # %%
+    percolation_density(number_configs,perco_list,lattice_size,SEED) 
+    #1: number of images for a given p
+    #2:list of p
+    #3: side length of the square lattice
+    #4: seed 
+
+else:
+    print ('Number of arguments:', len(sys.argv), 'arguments is less than expected (6) --- ABORTING!')
+    print ('Usage: python '+sys.argv[0],' seed size p_initial*10000 p_final*10000 dp*10000 number_of_configurations')
+    #print ('Argument List:', str(sys.argv))        
     
 
-# %%
-create_directory('images_perco_density_new')
-os.chdir('images_perco_density_new')
+## %%
+#create_directory('images_perco_density_new')
+#os.chdir('images_perco_density_new')
 
-# %%
-print(os.getcwd())
+## %%
+#print(os.getcwd())
 
-# %%
-M=[x/1000 for x in range(0,1000,50)]
-M=M[1:]
-N=[x/10000 for x in range(5920,5942,4)]
-O=M+N
+## %%
+#M=[x/1000 for x in range(0,1000,50)]
+#M=M[1:]
+#N=[x/10000 for x in range(5920,5942,4)]
+#O=M+N
 
-
-# %%
-percolation_density(100,O,100,1) 
-#1: number of images for a given p
-#2:list of p
-#3: side length of the square lattice
-#4: seed 
