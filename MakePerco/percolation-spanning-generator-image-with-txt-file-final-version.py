@@ -161,13 +161,10 @@ def percolation(im,p,L,seed):
         pl.imshow(cluster,cmap='nipy_spectral')
         cmap2 = pl.cm.get_cmap('nipy_spectral')
 
-
-       
 #        first_line=(x for x in cluster[0][:])
 #        last_line=(y for y in cluster[-1][:])
 #        first_column=(w for w in cluster[:,0])
 #        last_column=(z for z in cluster[:,-1])
-
 
         top=set(x for x in cluster[0][:]).intersection(set(y for y in cluster[-1][:]))
         side=set(w for w in cluster[:,0]).intersection(set(z for z in cluster[:,-1]))
@@ -186,8 +183,6 @@ def percolation(im,p,L,seed):
             rgba1=0
             rgba2=0
             
-            
-                
             if side!=set() and top!=set():
                 size_spanning_cluster(side,cluster)
                 size_side_spanning= size_spanning
@@ -295,8 +290,10 @@ if ( len(sys.argv) == 7 ):
     #4: seed 
 
 else:
-    print ('Number of arguments:', len(sys.argv), 'arguments is less than expected (6) --- ABORTING!')
-    print ('Usage: python '+sys.argv[0],' seed size p_initial*10000 p_final*10000 dp*10000 number_of_configurations')
+    print ('Number of arguments:', len(sys.argv), \
+           'arguments is less than expected (6) --- ABORTING!')
+    print ('Usage: python '+sys.argv[0],\
+           ' seed size p_initial*10000 p_final*10000 dp*10000 number_of_configurations')
     #print ('Argument List:', str(sys.argv))        
     
 
