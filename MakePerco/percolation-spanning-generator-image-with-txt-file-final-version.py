@@ -92,9 +92,9 @@ def fill(x, y, n_clusters, N, A, cluster, sizes):
     while len(stack) > 0:
         x, y = stack.pop(-1)
 
-        if A[x,y] == 1 and cluster[x,y] == -1:
-            cluster[x,y] = n_clusters
-            sizes[n_clusters] += 1     #augmente le nombre de site du cluster
+        if A[x,y] == 1 and cluster[x,y] == 0:
+            cluster[x,y] = n_clusters+1
+            sizes[n_clusters+1] += 1     #augmente le nombre de site du cluster
 
             if y+1 < N:
                 stack.append((x,y+1))
@@ -126,6 +126,7 @@ def size_spanning_cluster(spanning_set, cluster):
 def percolation(im,p,L,seed):
     my_dpi=96 # DPI of the monitor
     import time
+    import pickle
     start=time.time()
     #create_directory('percolating')   #if we want to classify them inside each density directory
     #create_directory('not_percolating')
@@ -136,17 +137,19 @@ def percolation(im,p,L,seed):
         A = np.random.binomial(1,p,size=(L,L))
         nnz = A.nonzero()
         n_clusters = 0
-        cluster = np.zeros((L,L),dtype=int) - 1
+        cluster = np.zeros((L,L),dtype=int) 
         sizes = Counter()
          
         for i, j in zip(*nnz):
-            if cluster[i,j] < 0:
+            if cluster[i,j] == 0:
                 fill(i,j, n_clusters, L, A, cluster, sizes)
                 n_clusters += 1
-        new_mapping = np.arange(0,n_clusters)
+        new_mapping = np.arange(1,n_clusters+1)
         np.random.shuffle(new_mapping)
-        cluster = np.array([new_mapping[v]/(n_clusters-1) \
-                            if not v == -1 else np.nan for v in cluster.flat]).reshape(L,L)
+        cluster1= np.array([new_mapping[v-1] \
+                            if not v == 0 else 0 for v in cluster.flat]).reshape(L,L)
+        cluster = np.array([new_mapping[v-1]/(n_clusters) \
+                            if not v == 0 else np.nan for v in cluster.flat]).reshape(L,L)
             
         all_sizes = Counter(list(sizes.values()))
 
@@ -179,7 +182,6 @@ def percolation(im,p,L,seed):
             fig.savefig('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+\
                         '_top_'+str(top)+'_side_'+str(side)+'_size_max_clus'+str(max_size)+\
                         '.png',bbox_inches='tight', pad_inches = 0,dpi=my_dpi)
-#            size_spanning
             size_side_spanning=0
             size_top_spanning=0
             rgba1=0
@@ -216,6 +218,12 @@ def percolation(im,p,L,seed):
             f.write('color of the spanning cluster = '+repr(rgba1)+"\n")
             f.write('color of the spanning cluster = '+repr(rgba2)+"\n")
             f.close()
+            
+            h= open('pc_1__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_top_'+str(top)+\
+                   '_side_'+str(side)+'_size_max_clus'+str(max_size)+'.pkl', "wb")
+            pickle.dump(cluster1,h)
+            h.close()
+            
             #os.chdir('..')
         else:
             #os.chdir('not_percolating')
@@ -226,6 +234,11 @@ def percolation(im,p,L,seed):
             g.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size)+'\n')
             g.write('Sizes of each clusters (number associated to the cluster: number of occupied sites)= ' +repr(sizes)+"\n")
             g.close()
+            
+            
+            i=open('pc_0__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_.pkl', "wb")
+            pickle.dump(cluster1,i)
+            i.close()
             #os.chdir('..')
 
         pl.close('all')
@@ -272,6 +285,7 @@ def percolation_density(im,M,L,seed):
 ###############################################################################
 
 ###############################################################################
+
             
 if ( len(sys.argv) == 7 ):
     #SEED = 101
