@@ -306,7 +306,7 @@ if ( len(sys.argv) == 7 ):
     #4: seed 
 
 else:
-    print ('Number of arguments:', len(sys.argv), \
+    print ('Number of', len(sys.argv), \
            'arguments is less than expected (6) --- ABORTING!')
     print ('Usage: python '+sys.argv[0],\
            ' seed size p_initial*10000 p_final*10000 dp*10000 number_of_configurations')
