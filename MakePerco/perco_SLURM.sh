@@ -48,8 +48,8 @@ cat ${jobfile}
 
 chmod 755 ${jobfile}
 #(sbatch -q devel ${jobfile})
-#(sbatch -q taskfarm ${jobfile})
+(sbatch -q taskfarm ${jobfile})
 #(sbatch ${jobfile})
-(./${jobfile})
+#(./${jobfile})
 
 done
