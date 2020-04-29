@@ -10,7 +10,7 @@ configs=${7:-2}
 
 codedir=`pwd`
 
-echo "ISING: dir=" $dir ", seed=" $seed ", size=" $size \
+echo "PERCO: dir=" $dir ", seed=" $seed ", size=" $size \
 ", [Ti,Tf,dT]= [" $perco_i, $perco_f, $dperco "], configs=" $configs
 
 mkdir -p $dir
@@ -39,7 +39,7 @@ module load Anaconda3
 pwd
 echo "--- working on $perco"
 
-python $codedir/ising_data_generate.py $seed $size $perco $perco 0.1 $configs
+python $codedir/perco_data_generate.py $seed $size $perco $perco 1 $configs
 
 echo "--- finished with $perco"
 EOD
