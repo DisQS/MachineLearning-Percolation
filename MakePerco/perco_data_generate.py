@@ -27,20 +27,21 @@ def list_dir(path):
 ###############################################################################
 def check_name(path):
     #print(L)
+    global seed_list, max_seed, nbre_images
     import re
     c=0
     N=os.listdir(path)
     #print(N)
-    nbre_images=len(N) #V
+    nbre_file=len(N) #V
     del(N)
     global max_seed
    
-    result=[0]*nbre_images
-    Z=[0]*nbre_images
+    result=[0]*nbre_file
+    seed_list=[0]*nbre_file
 
     B=(name for name in os.listdir(path))
 
-    for c in range(nbre_images):
+    for c in range(nbre_file):
           
         A=next(B).split('_')[5]      
         #print(A)
@@ -51,14 +52,18 @@ def check_name(path):
     #print(result)
     for j in range(len(result)):
         #print(j)
-        Z[j]=int(result[j][0])
+        seed_list[j]=int(result[j][0])
         j+=1
+        
+        max_seed=max(seed_list)
+        nbre_images=nbre_file/3
+    
+            
     #print(Z)
-    max_seed=max(Z)
    
     #print(max_seed)
     
-    return max_seed
+    return 
     
 ###############################################################################
 def intersection(lst1, lst2): 
@@ -125,11 +130,12 @@ def percolation(im,p,L,seed):
     my_dpi=96 # DPI of the monitor
     import time
     import pickle
-    start=time.time()
+
     #create_directory('percolating')   #if we want to classify them inside each density directory
     #create_directory('not_percolating')
-               
+                
     for t in range(im):
+        
         seed1=np.random.seed(seed)
         # site occupation matrix
         A = np.random.binomial(1,p,size=(L,L))
@@ -240,31 +246,43 @@ def percolation(im,p,L,seed):
 
         pl.close('all')
         seed+=1
-    end=time.time()
-    execution=round(end-start,4)
-    print(execution, 'seconds')
 
     return
 
 ###############################################################################
-def percolation_density(im,M,L,seed):
+def percolation_density(number_configs,perco_list,lattice_size,seed):
     import os
     #create_directory('L'+str(L))
     #os.chdir('L'+str(L))
     import time
     start1= time.time()
-    for p in M:
+    seed_ini=seed
+    im_ini=number_configs
+    for p in perco_list:
         new_im=0
+        seed=seed_ini
+        im=im_ini
+        
         if os.path.exists('p'+str(p)):
             print('The file '+'p '+str(p)+' already exists')
             #print ("Creation of the directory failed")
             check_name('p'+str(p))
             print('The file already exist with max seed=',max_seed)
             os.chdir('p'+str(p))
-            if max_seed <= im:
-                new_im=(im- max_seed)
-                seed=1+max_seed
-            percolation(new_im,p,L,seed)
+            if im>= nbre_images:
+                im=im-nbre_images
+                while im > 0:
+                    if seed in seed_list:
+                        print('An image with the seed = ',seed, 'already exists')
+                        seed+=1
+                    else:
+                        percolation(1,p,lattice_size,seed)
+                        im-=1
+                        new_im+=1
+                        seed+=1
+            else:
+                print('the file already contains ',nbre_images,' images, choose a higher number of configurations.')
+                    
             os.chdir('..')
             if new_im!=0:
                 print(new_im, 'new images were created')
@@ -274,6 +292,7 @@ def percolation_density(im,M,L,seed):
             os.chdir('p'+str(p))
             percolation(im,p,L,seed)
             os.chdir('..')
+            print(im, 'new images were created')
     #os.chdir('..')  
     end1=time.time()
     total_time=end1-start1
@@ -293,7 +312,7 @@ if ( len(sys.argv) == 7 ):
     perco_inc = int(sys.argv[5])
     number_configs = int(sys.argv[6])
 
-    perco_list=[val/10000 for val in range(perco_init,perco_final,perco_inc)]
+    perco_list=[val/10000 for val in range(perco_init,perco_final+1,perco_inc)]
             
     # %%
     percolation_density(number_configs,perco_list,lattice_size,SEED) 
