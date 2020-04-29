@@ -1,10 +1,8 @@
-# %%
+###############################################################################
 """
 # Generation of percolation's datasets ( 16 avril 2020) 
 # (reduced memory usage compare to the first version) 
 """
-
-
 
 ###############################################################################
 
@@ -235,7 +233,6 @@ def percolation(im,p,L,seed):
             g.write('Sizes of each clusters (number associated to the cluster: number of occupied sites)= ' +repr(sizes)+"\n")
             g.close()
             
-            
             i=open('pc_0__p'+str(p)+'_L'+str(L)+'_s'+str(seed)+'_.pkl', "wb")
             pickle.dump(cluster1,i)
             i.close()
@@ -252,8 +249,8 @@ def percolation(im,p,L,seed):
 ###############################################################################
 def percolation_density(im,M,L,seed):
     import os
-    create_directory('L'+str(L))
-    os.chdir('L'+str(L))
+    #create_directory('L'+str(L))
+    #os.chdir('L'+str(L))
     import time
     start1= time.time()
     for p in M:
@@ -277,7 +274,7 @@ def percolation_density(im,M,L,seed):
             os.chdir('p'+str(p))
             percolation(im,p,L,seed)
             os.chdir('..')
-    os.chdir('..')  
+    #os.chdir('..')  
     end1=time.time()
     total_time=end1-start1
     print("Images generated in : ", total_time, "seconds")
