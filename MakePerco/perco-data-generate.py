@@ -34,7 +34,7 @@ def check_name(path):
     #print(N)
     nbre_file=len(N) #V
     del(N)
-    global max_seed
+    
    
     result=[0]*nbre_file
     seed_list=[0]*nbre_file
@@ -55,15 +55,15 @@ def check_name(path):
         seed_list[j]=int(result[j][0])
         j+=1
         
-        max_seed=max(seed_list)
-        nbre_images=nbre_file/3
+    max_seed=max(seed_list)
+    nbre_images=nbre_file/3
     
             
     #print(Z)
    
     #print(max_seed)
     
-    return 
+    return max_seed
     
 ###############################################################################
 def intersection(lst1, lst2): 
@@ -290,7 +290,7 @@ def percolation_density(number_configs,perco_list,lattice_size,seed):
         else:
             create_directory('p'+str(p))
             os.chdir('p'+str(p))
-            percolation(im,p,L,seed)
+            percolation(im,p,lattice_size,seed_ini)
             os.chdir('..')
             print(im, 'new images were created')
     #os.chdir('..')  
