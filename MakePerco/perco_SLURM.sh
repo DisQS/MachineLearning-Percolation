@@ -37,11 +37,11 @@ module load Anaconda3
 #conda init --all; conda activate
 
 pwd
-echo "--- working on $perco"
+echo "--- working on p=$perco"
 
 python $codedir/perco_data_generate.py $seed $size $perco $perco 1 $configs
 
-echo "--- finished with $perco"
+echo "--- finished with p=$perco"
 EOD
 
 cat ${jobfile}

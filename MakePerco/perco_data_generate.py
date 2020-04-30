@@ -264,28 +264,30 @@ def percolation_density(number_configs,perco_list,lattice_size,seed):
         im=im_ini
         
         if os.path.exists('p'+str(p)):
-            print('The file '+'p '+str(p)+' already exists')
+            print('A directory '+'p='+str(p)+' already exists')
             #print ("Creation of the directory failed")
             check_name('p'+str(p))
-            print('The file already exist with max seed=',max_seed)
+            print('A file already exist with max seed=',max_seed)
             os.chdir('p'+str(p))
             if im>= nbre_images:
                 im=im-nbre_images
                 while im > 0:
                     if seed in seed_list:
-                        print('An image with the seed = ',seed, 'already exists')
+                        print('Image with seed = ',seed, 'already exists')
                         seed+=1
                     else:
                         percolation(1,p,lattice_size,seed)
                         im-=1
                         new_im+=1
                         seed+=1
+                        print('NEW image with seed = ',seed, 'was created')
             else:
-                print('the file already contains ',nbre_images,' images, choose a higher number of configurations.')
+                print('The directory already contains ', nbre_images,\
+                      ' images, please choose a higher number of configurations.')
                     
             os.chdir('..')
             if new_im!=0:
-                print(new_im, 'new images were created')
+                print("-->",new_im, 'new images were created')
         
         else:
             create_directory('p'+str(p))
