@@ -3,9 +3,9 @@
 dir=${1:-../data}   
 seed=${2:-1234567}
 size=${3:-10}
-perco_i=${4:-4.0}
-perco_f=${5:-4.0}
-dperco=${6:-0.1}
+perco_i=${4:-05927}
+perco_f=${5:-06000}
+dperco=${6:-02000}
 configs=${7:-2}
 
 codedir=`pwd`
@@ -48,8 +48,8 @@ cat ${jobfile}
 
 chmod 755 ${jobfile}
 #(sbatch -q devel ${jobfile})
-(sbatch -q taskfarm ${jobfile})
+#(sbatch -q taskfarm ${jobfile})
 #(sbatch ${jobfile})
-#(./${jobfile})
+(./${jobfile})
 
 done
