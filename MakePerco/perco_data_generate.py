@@ -35,7 +35,6 @@ def check_name(path):
     nbre_file=len(N) #V
     del(N)
     
-   
     result=[0]*nbre_file
     seed_list=[0]*nbre_file
 
@@ -303,7 +302,6 @@ def percolation_density(number_configs,perco_list,lattice_size,seed):
 ###############################################################################
 
 ###############################################################################
-
             
 if ( len(sys.argv) == 7 ):
     #SEED = 101
