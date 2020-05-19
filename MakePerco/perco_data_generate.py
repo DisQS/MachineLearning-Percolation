@@ -159,11 +159,20 @@ def percolation(im,p,L,seed):
         # get size of largest cluster
         if n_clusters !=0:
             max_size = max(all_sizes.keys())
+            
+        if L==100:
+            size_im=131
+        else:
+            size_im=L+ (L/100)*30
 
         #create new figures
         #fig = pl.figure()
-        fig =pl.figure(figsize=(133/my_dpi, 133/my_dpi), dpi=my_dpi)
+        fig =pl.figure(figsize=((size_im/my_dpi), (size_im/my_dpi)), dpi=my_dpi)
+        #fig =pl.figure(figsize=((L+33)/my_dpi, (L+33)/my_dpi), dpi=my_dpi)
         pl.axis('off')
+        #fig = pl.gcf()
+        #DPI = fig.get_dpi()
+        #fig.set_size_inches(L/float(DPI), L/float(DPI))
         pl.imshow(cluster,cmap='nipy_spectral')
         cmap2 = pl.cm.get_cmap('nipy_spectral')
 
@@ -262,7 +271,7 @@ def percolation_density(number_configs,perco_list,lattice_size,seed):
         seed=seed_ini
         im=im_ini
         
-        if os.path.exists('p'+str(p)):
+        if os.path.exists('p'+str(p)) and len(os.listdir('p'+str(p)))!=0:
             print('A directory '+'p='+str(p)+' already exists')
             #print ("Creation of the directory failed")
             check_name('p'+str(p))
