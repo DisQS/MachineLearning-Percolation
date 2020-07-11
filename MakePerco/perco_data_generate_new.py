@@ -43,7 +43,7 @@ def check_name(path):
 
     for c in range(nbre_file):
           
-        A=next(B).split('_')[5]      
+        A=next(B).split('_')[9]      
         #print(A)
     
         regex1 = re.compile('\d+')
