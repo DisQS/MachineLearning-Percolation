@@ -39,7 +39,7 @@ module load Anaconda3
 pwd
 echo "--- working on p=$perco"
 
-python $codedir/perco_data_generate.py $seed $size $perco $perco 1 $configs
+python $codedir/perco_generate_corr.py $seed $size $perco $perco 1 $configs
 
 echo "--- finished with p=$perco"
 EOD
