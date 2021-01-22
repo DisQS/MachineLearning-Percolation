@@ -44,7 +44,7 @@ def check_name(path):
         j+=1
         
     max_seed=max(seed_list)
-    nbre_images=nbre_file/5
+    nbre_images=nbre_file/6
     
    
     
@@ -635,8 +635,9 @@ def percolation(im,p,size_sys,seed):
       
     
         corr_proba_largest=corr_value[1]-proba_largest
+        corr_value_zipped=list(zip(corr_value[0],corr_value[1], corr_proba_largest,corr_value[2],corr_value[3]))
         
-
+        
     
         
         
@@ -748,6 +749,13 @@ def percolation(im,p,size_sys,seed):
 
             f.close()
             
+           
+        
+    
+            header = '{0:^5s}   {1:^7s}   {2:^7s} {3:^5s}   {4:^7s} '.format('distance', 'Corr func','Corr func-proba largest','distance','Corr func largest')
+            filename='pc_________s'+str(seed)+'Correlation_function_2.txt'
+            np.savetxt(filename1+'_corr_func'+'.txt',corr_value_zipped, header=header, fmt=['    %.7f  ','    %.7f  ','    %.7f  ','  %.7f','  %.7f'])
+            
             
 
       
@@ -788,6 +796,11 @@ def percolation(im,p,size_sys,seed):
             pickle.dump(cluster_pbc_int,i)
             i.close()
             #os.chdir('..')
+            
+            
+            header = '{0:^5s}   {1:^7s}   {2:^7s} {3:^5s}   {4:^7s} '.format('distance', 'Corr func','Corr func-proba largest','distance','Corr func largest')
+            np.savetxt(filename0+'_corr_func'+'.txt',corr_value_zipped, header=header, fmt=['    %.7f  ','    %.7f  ','    %.7f  ','  %.7f','  %.7f'])
+            
 
         pl.close('all')
         seed+=1
