@@ -844,8 +844,8 @@ def percolation_density(number_configs,perco_list,lattice_size,seed):
                 print("-->",new_im, 'new images were created')
         
         else:
-            create_directory('p'+str(p)+'new_diagonal')
-            os.chdir('p'+str(p)+'new_diagonal')
+            create_directory('p'+str(p)')
+            os.chdir('p'+str(p)')
             percolation(im,p,lattice_size,seed_ini)
             os.chdir('..')
             print(im, 'new images were created')
