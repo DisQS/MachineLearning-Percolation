@@ -195,14 +195,13 @@ def pbc_percolation(boundary_set,boundary_array_1, boundary_array_2,PBC):
     cluster_number=0
     for element in boundary_set:
         cluster_number=element
-        print('clus_n',cluster_number)
+
         new_array=np.array([v if  v == cluster_number else 0 for v in boundary_array_1])
-        print('new_array',new_array)
+
         coord_non_zero=new_array.nonzero()[0]
-        print('coord_non_z',coord_non_zero)
+
         for arg in coord_non_zero:
-            print('arg',arg)
-            print('bound_array',boundary_array_2)
+
             if  boundary_array_2[arg]!=0:
                 PBC=1
                 
