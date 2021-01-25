@@ -241,7 +241,7 @@ def size_spanning_cluster(spanning_set,cluster,cluster_pbc_int):
     return size_spanning
 
 ##############################################################################
-def correlation_function_pbc_new_diagonal(lattice,l,n_clusters,seed):
+def correlation_function_pbc(lattice,l,n_clusters,seed):
     from math import sqrt
 
     start50=time.time()
@@ -364,9 +364,7 @@ def correlation_function_pbc_new_diagonal(lattice,l,n_clusters,seed):
     sqrt_distance=np.array(sqrt_distance)
     print('len sqrt distance',len(sqrt_distance))
     
-    
-    average=[o/l for o,l in zip(corr2,div_pbc) ]
-    average=np.array(average)
+    average=np.divide(corr2,div_pbc, out=np.zeros_like(corr2), where=div_pbc!=0)
     index_max_corr=np.max(np.nonzero(corr2))
     corr3=corr2[:index_max_corr+1]
     index = np.where(corr3 == 0)[0]  #np.argwhere(np.isnan(W))
@@ -387,8 +385,8 @@ def correlation_function_pbc_new_diagonal(lattice,l,n_clusters,seed):
     
     
     
-    average_largest=[o/l for o,l in zip(corr_max_cluster,div_pbc) ]
-    average_largest=np.array(average_largest)
+   
+    average=np.divide(corr_max_cluster,div_pbc, out=np.zeros_like(corr_max_cluster), where=div_pbc!=0)
     index_max_corr_largest=np.max(np.nonzero(corr_max_cluster))
     corr3_largest=corr_max_cluster[:index_max_corr_largest+1]
     
@@ -607,7 +605,7 @@ def percolation(im,p,size_sys,seed):
         size_maxi=size_max(order_pbc,n_clusters)
         proba_largest= (size_maxi[0]/(size_sys**2))**2
         print('first correlation')
-        corr_value=correlation_function_pbc_new_diagonal(cluster_pbc_int,size_sys,n_clusters_pbc,seed)
+        corr_value=correlation_function_pbc(cluster_pbc_int,size_sys,n_clusters_pbc,seed)
         print('end first correlation')
         
         square_proba=p*p
