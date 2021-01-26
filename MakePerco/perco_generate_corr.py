@@ -386,7 +386,7 @@ def correlation_function_pbc(lattice,l,n_clusters,seed):
     
     
    
-    average=np.divide(corr_max_cluster,div_pbc, out=np.zeros_like(corr_max_cluster), where=div_pbc!=0)
+    average_largest=np.divide(corr_max_cluster,div_pbc, out=np.zeros_like(corr_max_cluster), where=div_pbc!=0)
     index_max_corr_largest=np.max(np.nonzero(corr_max_cluster))
     corr3_largest=corr_max_cluster[:index_max_corr_largest+1]
     
@@ -488,7 +488,7 @@ def correlation_l(distance_to_site,Correlation_func, size_sys,proba_largest,p):
 
     
 ###############################################################################
-def percolation(im,p,size_sys,seed):
+def percolation(im,p,size_sys,seed,seed_ini):
     my_dpi=96 # DPI of the monitor
     
     global cluster_nan
@@ -497,7 +497,7 @@ def percolation(im,p,size_sys,seed):
     import numpy as np
     np.random.seed(seed)
     random.seed(seed)
-#     print('debut')
+    increment=0
 
     #create_directory('percolating')   #if we want to classify them inside each density directory
     #create_directory('not_percolating')
@@ -800,7 +800,9 @@ def percolation(im,p,size_sys,seed):
             
 
         pl.close('all')
-        seed+=1
+        if increment<len(seed_ini)-1:
+            increment+=1
+            seed=seed_ini[increment]
         end2=time.time()-start2
         print(end2)
 
@@ -819,7 +821,9 @@ def percolation_density(number_configs,perco_list,lattice_size,seed):
 #     correlation_func=[]
     dens=[]
     start1= time.time()
-    seed_ini=seed
+    seed_ini=list(random.getrandbits(8 * (number_configs+20).to_bytes((number_configs+20), 'big')))
+    increment=0
+    seed=seed_ini[increment]
     im_ini=number_configs
     for p in perco_list:
         new_im=0
@@ -837,13 +841,15 @@ def percolation_density(number_configs,perco_list,lattice_size,seed):
                 while im > 0:
                     if seed in check[1]: #seed_list:
                         print('Image with seed = ',seed, 'already exists')
-                        seed+=1
+                        increment+=1
+                        seed=seed_ini[increment]
                     else:
                         dens.append(p)
-                        perco_calcul=percolation(1,p,lattice_size,seed) 
+                        perco_calcul=percolation(1,p,lattice_size,seed,seed_ini) 
                         perco_calcul
                         new_im+=1
-                        seed+=1
+                        increment+=1
+                        seed=seed_ini[increment]
                         print('NEW image with seed = ',seed, 'was created')
             else:
                 print('The directory already contains ', check[2],\
@@ -856,7 +862,7 @@ def percolation_density(number_configs,perco_list,lattice_size,seed):
         else:
             create_directory('p'+str(p))
             os.chdir('p'+str(p))
-            percolation(im,p,lattice_size,seed_ini)
+            percolation(im,p,lattice_size,seed,seed_ini)
             os.chdir('..')
             print(im, 'new images were created')
 #     os.chdir('..')  
