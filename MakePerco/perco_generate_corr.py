@@ -491,7 +491,7 @@ def correlation_l(distance_to_site,Correlation_func, size_sys,proba_largest,p):
 def percolation(im,p,size_sys,seed,seed_ini):
     my_dpi=96 # DPI of the monitor
     
-    global cluster_nan
+   
    
     import pickle
     import numpy as np
@@ -620,19 +620,11 @@ def percolation(im,p,size_sys,seed,seed_ini):
        
         
         
-        pl.plot(corr_value[0],corr_value[1],label='g(r) every clusters')
-        pl.plot(corr_value[2],corr_value[3], label='largest cluster')
-        pl.axhline(y=square_proba, color='g', linestyle='--')
-        pl.axhline(y=proba_largest, color='grey', linestyle='--')
-        pl.legend(loc='best')
-        pl.xlabel('distance r')
-        pl.ylabel('correlation function g(r)')
-        pl.title('Correlation function for system '+str(size_sys)+' at density '+str(p))
-        pl.savefig('pc_________s'+str(seed)+'corr_func_'+'__p'+str(p)+'_L'+str(size_sys)+'_s'+str(seed)+'_'+'.png')
+        
       
     
         corr_proba_largest=corr_value[1]-proba_largest
-        corr_value_zipped=list(zip(corr_value[0],corr_value[1], corr_proba_largest,corr_value[2],corr_value[3]))
+        
         
         
     
@@ -726,10 +718,25 @@ def percolation(im,p,size_sys,seed,seed_ini):
             filename1='pc_1_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__p'+str(p)+'_L'+str(size_sys)+'_s'+str(seed)+\
                         '_top_'+str(top_bot_inter)+'_side_'+str(sides_inter)+'_size_max_clus'+str(max_size)+\
                         '_occ_'+str(occ)+'_'
-                       
-
-            pl.imsave(filename1+'.png', cluster_pbc_norm,cmap='Greys')
+                        
             
+
+            
+            pl.imsave(filename1+'im_lattice.png', cluster_pbc_norm,cmap='Greys')
+            
+            pl.close('all')            
+            pl.plot(corr_value[0],corr_value[1],label='g(r) every clusters')
+            pl.plot(corr_value[2],corr_value[3], label='largest cluster')
+            pl.axhline(y=square_proba, color='g', linestyle='--')
+            pl.axhline(y=proba_largest, color='grey', linestyle='--')
+            pl.legend(loc='best')
+            pl.xlabel('distance r')
+            pl.ylabel('correlation function g(r)')
+            pl.title('Correlation function for system '+str(size_sys)+' at density '+str(p))
+            pl.savefig(filename1+'corr_func'+'.png')
+            
+            pl.close('all')
+                       
             
 
             z=open(filename1+'corr_length'+'.txt', "w+")
@@ -749,6 +756,7 @@ def percolation(im,p,size_sys,seed,seed_ini):
            
         
     
+            corr_value_zipped=list(zip(corr_value[0],corr_value[1], corr_proba_largest,corr_value[2],corr_value[3]))
             header = '{0:^5s}   {1:^7s}   {2:^7s} {3:^5s}   {4:^7s} '.format('distance', 'Corr func','Corr func-proba largest','distance','Corr func largest')
             filename='pc_________s'+str(seed)+'Correlation_function_2.txt'
             np.savetxt(filename1+'_corr_func'+'.txt',corr_value_zipped, header=header, fmt=['    %.7f  ','    %.7f  ','    %.7f  ','  %.7f','  %.7f'])
@@ -769,11 +777,28 @@ def percolation(im,p,size_sys,seed,seed_ini):
             
             filename0='pc_0_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__p'+str(p)+'_L'+str(size_sys)+'_s'+str(seed)+\
                         '_size_max_clus'+str(size_maxi[0])+'_n'+str(size_maxi[1])+'_occ_'+str(occ)+'_'
+                        
+                        
+                        
+            pl.imsave(filename0+'im_lattice.png', cluster_pbc_norm,cmap='Greys')
             
-
-            pl.imsave(filename0+'.png', cluster_pbc_norm,cmap='Greys')
+            pl.close('all') 
+                        
+                        
+            pl.plot(corr_value[0],corr_value[1],label='g(r) every clusters')
+            pl.plot(corr_value[2],corr_value[3], label='largest cluster')
+            pl.axhline(y=square_proba, color='g', linestyle='--')
+            pl.axhline(y=proba_largest, color='grey', linestyle='--')
+            pl.legend(loc='best')
+            pl.xlabel('distance r')
+            pl.ylabel('correlation function g(r)')
+            pl.title('Correlation function for system '+str(size_sys)+' at density '+str(p))
+            pl.savefig(filename0+'corr_func'+'.png')
             
+            pl.close('all')  
             
+ 
+             
             
             z=open(filename0+'corr_length'+'.txt', "w+")
             z.write('\n'+repr(correlation_len)+'\n')
@@ -795,6 +820,7 @@ def percolation(im,p,size_sys,seed,seed_ini):
             #os.chdir('..')
             
             
+            corr_value_zipped=list(zip(corr_value[0],corr_value[1], corr_proba_largest,corr_value[2],corr_value[3]))
             header = '{0:^5s}   {1:^7s}   {2:^7s} {3:^5s}   {4:^7s} '.format('distance', 'Corr func','Corr func-proba largest','distance','Corr func largest')
             np.savetxt(filename0+'_corr_func'+'.txt',corr_value_zipped, header=header, fmt=['    %.7f  ','    %.7f  ','    %.7f  ','  %.7f','  %.7f'])
             
@@ -812,7 +838,7 @@ sizes,cluster_int, top_bot_inter,sides_inter,cluster_nan,
 
 
 #################################################################################################################################
-def percolation_density(number_configs,perco_list,lattice_size,seed):
+def percolation_density(number_configs,perco_list,lattice_size):  
     import os
     #create_directory('L'+str(L))
     #os.chdir('L'+str(L))
@@ -821,13 +847,14 @@ def percolation_density(number_configs,perco_list,lattice_size,seed):
 #     correlation_func=[]
     dens=[]
     start1= time.time()
-    seed_ini=list(random.getrandbits(8 * (number_configs+20).to_bytes((number_configs+20), 'big')))
+    seed_ini=list(random.getrandbits(8 * (number_configs+20)).to_bytes((number_configs+20), 'big'))
+    
     increment=0
     seed=seed_ini[increment]
     im_ini=number_configs
     for p in perco_list:
         new_im=0
-        seed=seed_ini
+        
         im=im_ini
         
         if os.path.exists('p'+str(p)) and len(os.listdir('p'+str(p)))!=0:
@@ -872,19 +899,19 @@ def percolation_density(number_configs,perco_list,lattice_size,seed):
     return 
 
 ####################################################################################################################
-if ( len(sys.argv) == 7 ):
+if ( len(sys.argv) == 6 ):
     #SEED = 101
-    SEED = int(sys.argv[1])
-    lattice_size = int(sys.argv[2])
-    perco_init = int(sys.argv[3]) 
-    perco_final = int(sys.argv[4])
-    perco_inc = int(sys.argv[5])
-    number_configs = int(sys.argv[6])
+    #SEED = int(sys.argv[1])
+    lattice_size = int(sys.argv[1])
+    perco_init = int(sys.argv[2]) 
+    perco_final = int(sys.argv[3])
+    perco_inc = int(sys.argv[4])
+    number_configs = int(sys.argv[5])
 
     perco_list=[val/10000 for val in range(perco_init,perco_final+1,perco_inc)]
             
     # %%
-    percolation_density(number_configs,perco_list,lattice_size,SEED) 
+    percolation_density(number_configs,perco_list,lattice_size) 
     #1: number of images for a given p
     #2:list of p
     #3: side length of the square lattice
