@@ -1,6 +1,7 @@
 #!/bin/bash
 
 dir=${1:-../data}   
+
 #seed=${2:-1234567}
 size=${2:-10}
 perco_i=${3:-05927}
