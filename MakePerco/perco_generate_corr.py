@@ -44,7 +44,7 @@ def check_name(path):
         j+=1
         
     max_seed=max(seed_list)
-    nbre_images=nbre_file/6
+    nbre_images=nbre_file/7
     
    
     
@@ -736,6 +736,16 @@ def percolation(im,p,size_sys,seed,seed_ini):
             pl.savefig(filename1+'corr_func'+'.png')
             
             pl.close('all')
+            
+            pl.plot(corr_value[0],corr_value[1],label='g(r) every clusters')
+            pl.legend(loc='best')
+            pl.yscale('log')
+            pl.xlabel('distance r')
+            pl.ylabel('correlation function g(r)')
+            pl.title('Correlation function (log scale) for system '+str(size_sys)+' at density '+str(p))
+            pl.savefig(filename1+'log_corr_func'+'.png')
+            
+            pl.close('all')
                        
             
 
@@ -744,13 +754,10 @@ def percolation(im,p,size_sys,seed,seed_ini):
             z.close()
                 
                 
-            f=open(filename1+'.txt', "w+")
+            f=open(filename1+'info.txt', "w+")
             f.write('Total number of cluster= '+ repr(n_clusters)+'\n')
             f.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size)+'\n')
             f.write('Number of clusters with given size= ' +repr(sizes)+"\n")
-#             f.write('Spanning cluster top-bottom = '+ repr(top)+' = '+repr(size_top_spanning)+"\n")
-#             f.write('Spanning cluster side-side= '+ repr(side)+ ' = '+repr(size_side_spanning)+"\n")
-
             f.close()
             
            
@@ -795,7 +802,17 @@ def percolation(im,p,size_sys,seed,seed_ini):
             pl.title('Correlation function for system '+str(size_sys)+' at density '+str(p))
             pl.savefig(filename0+'corr_func'+'.png')
             
-            pl.close('all')  
+            pl.close('all')
+            
+            pl.plot(corr_value[0],corr_value[1],label='g(r) every clusters')
+            pl.legend(loc='best')
+            pl.yscale('log')
+            pl.xlabel('distance r')
+            pl.ylabel('correlation function g(r)')
+            pl.title('Correlation function (log scale) for system '+str(size_sys)+' at density '+str(p))
+            pl.savefig(filename0+'log_corr_func'+'.png')
+            
+            pl.close('all')
             
  
              
@@ -808,7 +825,7 @@ def percolation(im,p,size_sys,seed,seed_ini):
 
             
             
-            g=open(filename0+'.txt', "w+")
+            g=open(filename0+'info.txt', "w+")
             g.write('Total number of cluster= '+ repr(n_clusters)+'\n')
             g.write('Size of the largest cluster (number of site occupied)= '+ repr(size_maxi[0])+'\n')
             g.write('Sizes of each clusters (number associated to the cluster: number of occupied sites)= ' +repr(sizes)+"\n")
@@ -843,12 +860,13 @@ def percolation_density(number_configs,perco_list,lattice_size):
     #create_directory('L'+str(L))
     #os.chdir('L'+str(L))
     import time
+    import pandas as pds
 #     correlation=[]
 #     correlation_func=[]
     dens=[]
     start1= time.time()
     seed_ini=list(random.getrandbits(8 * (number_configs+20)).to_bytes((number_configs+20), 'big'))
-    
+    seed_ini=pds.unique(seed_ini)
     increment=0
     seed=seed_ini[increment]
     im_ini=number_configs
