@@ -841,6 +841,10 @@ def percolation(im,p,size_sys,seed):
 
         pl.close('all')
         seed=seed=int(binascii.hexlify(os.urandom(1)),16)
+        if im>1:
+            check=check_name('.')
+            if seed in check[1]:
+                seed=int(binascii.hexlify(os.urandom(1)),16)
         end2=time.time()-start2
         print(end2)
 
