@@ -48,6 +48,7 @@ EOD
 cat ${jobfile}
 
 chmod 755 ${jobfile}
+chmod g+w ${jobfile}
 #(sbatch -q devel ${jobfile})
 (sbatch -q taskfarm ${jobfile})
 #(sbatch ${jobfile})
