@@ -23,11 +23,12 @@ def check_name(path):
             regex3 = re.compile('\d+')
             seed_sys_reg=re.findall(regex3,seed_sys)
             seeds.append(int(seed_sys_reg[0]))
-           
-
     
     nbre_files=len(results)
-    max_seed=max(seeds)
+    if len(seeds)>0:
+        max_seed=max(seeds)
+    else:
+        max_seed=0
     
     return max_seed,seeds, nbre_files
 
@@ -293,10 +294,12 @@ def correlation_l(distance_to_site,Correlation_func, size_sys,proba_largest,p):
 def percolation(im,p,size_sys,seed):
 
     import pickle
-    
+
+    # the seed has alreayd been checked to see if it's ok
+    # but it also means we should only use it for im=1
     np.random.seed(seed)
     random.seed(seed)
-    
+    print('percolation: new percolation starting with seed=', seed)
 
     #create_directory('percolating')   #if we want to classify them inside each density directory
     #create_directory('not_percolating')
@@ -521,14 +524,6 @@ def percolation(im,p,size_sys,seed):
             pickle.dump(data_pkl0 ,pkl_file0)
             pkl_file0.close()
             
-
-
-        seed=seed=int(binascii.hexlify(os.urandom(1)),16)
-        if im>1:
-            check=check_name('.')
-            if seed in check[1]:
-                while seed in check[1]:
-                    seed=int(binascii.hexlify(os.urandom(1)),16)
         end2=time.time()-start2
         print(end2)
 
@@ -543,50 +538,44 @@ def percolation_density(number_configs,perco_list,lattice_size):
     
     import time
     
-
     dens=[]
     start1= time.time()
-    im_ini=number_configs
-    seed=int(binascii.hexlify(os.urandom(1)),16)
+    configs_wanted=number_configs
+    #seed=int(binascii.hexlify(os.urandom(1)),16)
     for p in perco_list:
-        new_im=0
+        print('percolation_density: workin on p=', p)
+
+        configs_created=0
         
-        im=im_ini
         if os.path.exists('p'+str(p)) and len(os.listdir('p'+str(p)))!=0:
             print('A directory '+'p='+str(p)+' already exists')
-            #print ("Creation of the directory failed")
-            check=check_name('p'+str(p))
-            print('A file already exist with max seed=',check[0])  #max_seed)
-            os.chdir('p'+str(p))
-            if im>= check[2]:  #nbre_images:
-                im=im-check[2]   #nbre_images
-                while im > 0:
-                    if seed in check[1]: #seed_list:
-                        print('Image with seed = ',seed, 'already exists')
-                        seed=int(binascii.hexlify(os.urandom(1)),16)
-                    else:
-                        dens.append(p)
-                        perco_calcul=percolation(1,p,lattice_size,seed) 
-                        perco_calcul
-                        new_im+=1
-                        im-=1
-                        seed=int(binascii.hexlify(os.urandom(1)),16)
-                        print('NEW image with seed = ',seed, 'was created')
-            else:
-                print('The directory already contains ', check[2],\
-                      ' images, please choose a higher number of configurations.')
-                    
-            os.chdir('..')
-            if new_im!=0:
-                print("-->",new_im, 'new images were created')
-        
         else:
             create_directory('p'+str(p))
-            os.chdir('p'+str(p))
-            percolation(im,p,lattice_size,seed)
+        
+        os.chdir('p'+str(p))
+
+        max_seed,seeds_existing,configs_existing=check_name('.')
+        print('--- found seeds=', seeds_existing)
+        print('A file already exist with max seed=',max_seed)  #max_seed)
+        if configs_wanted >= configs_existing:  #nbre_images:
+            configs_tomake = configs_wanted - configs_existing   #nbre_images
+            while configs_tomake > 0:
+                seed=int(binascii.hexlify(os.urandom(1)),16)
+                if seed in seeds_existing: #seed_list:
+                    print('Image with seed = ',seed, 'already exists')
+                    while seed in seeds_existing:
+                        seed=int(binascii.hexlify(os.urandom(1)),16)
+                    seeds_existing.append(seed)
+                    print('--- NEW seed ', seed, ' scheduled to be made')
+                    # now we have a good seed, let's percolate
+                    perco_calcul= percolation(1,p,lattice_size,seed) 
+                    configs_created+=1
+                    print('--- NEW configuration', seed,' was created')
+
             os.chdir('..')
-            print(im, 'new images were created')
-#     os.chdir('..')  
+            if configs_created!=0:
+                print("-->",new_created, 'new images were created')
+        
     end1=time.time()
     total_time=end1-start1
     print("Images generated in : ", total_time, "seconds")
