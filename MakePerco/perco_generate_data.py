@@ -542,7 +542,7 @@ def percolation_density(number_configs,perco_list,lattice_size):
     dens=[]
     start1= time.time()
     configs_wanted=number_configs
-    #seed=int(binascii.hexlify(os.urandom(1)),16)
+    #seed=int(binascii.hexlify(os.urandom(16)),16)
     for p in perco_list:
         print('percolation_density: workin on p=', p)
 
@@ -562,11 +562,11 @@ def percolation_density(number_configs,perco_list,lattice_size):
             configs_tomake = configs_wanted - configs_existing   #nbre_images
             print('percolation_density: configs existing, wanted, tomake=',configs_existing, configs_wanted, configs_tomake)
             while configs_tomake > 0:
-                seed=int(binascii.hexlify(os.urandom(1)),16)
+                seed=int(binascii.hexlify(os.urandom(16)),16)
                 if seed in seeds_existing: #seed_list:
                     print('Image with seed = ',seed, 'already exists')
                     while seed in seeds_existing:
-                        seed=int(binascii.hexlify(os.urandom(1)),16)
+                        seed=int(binascii.hexlify(os.urandom(16)),16)
                     seeds_existing.append(seed)
                     print('--- NEW seed ', seed, ' scheduled to be made')
                     # now we have a good seed, let's percolate
