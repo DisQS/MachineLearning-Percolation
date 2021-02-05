@@ -29,8 +29,9 @@ def check_name(path):
         max_seed=max(seeds)
     else:
         max_seed=0
-    
-    return max_seed,seeds, nbre_files
+
+    print('check: max_seed, nbre_file =', max_seed, nbre_files)
+    return max_seed, seeds, nbre_files
 
 
 ###############################################################################
@@ -556,9 +557,10 @@ def percolation_density(number_configs,perco_list,lattice_size):
 
         max_seed,seeds_existing,configs_existing=check_name('.')
         print('--- found seeds=', seeds_existing)
-        print('A file already exist with max seed=',max_seed)  #max_seed)
+
         if configs_wanted >= configs_existing:  #nbre_images:
             configs_tomake = configs_wanted - configs_existing   #nbre_images
+            print('percolation_density: configs existing, wanted, tomake=',configs_existing, configs_wanted, configs_tomake)
             while configs_tomake > 0:
                 seed=int(binascii.hexlify(os.urandom(1)),16)
                 if seed in seeds_existing: #seed_list:
@@ -568,13 +570,14 @@ def percolation_density(number_configs,perco_list,lattice_size):
                     seeds_existing.append(seed)
                     print('--- NEW seed ', seed, ' scheduled to be made')
                     # now we have a good seed, let's percolate
-                    perco_calcul= percolation(1,p,lattice_size,seed) 
-                    configs_created+=1
-                    print('--- NEW configuration', seed,' was created')
+                perco_calcul= percolation(1,p,lattice_size,seed) 
+                configs_created+=1
+                configs_tomake-=1
+                print('--- NEW configuration', seed,' was created')
 
             os.chdir('..')
             if configs_created!=0:
-                print("-->",new_created, 'new images were created')
+                print("-->",configs_created, 'new images were created')
         
     end1=time.time()
     total_time=end1-start1
@@ -606,10 +609,3 @@ else:
     print ('Usage: python '+sys.argv[0],\
            ' seed size p_initial*10000 p_final*10000 dp*10000 number_of_configurations')
     #print ('Argument List:', str(sys.argv))        
-    
-
-
-   
-
-
-
