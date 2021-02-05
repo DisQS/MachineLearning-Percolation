@@ -298,9 +298,9 @@ def percolation(im,p,size_sys,seed):
 
     # the seed has alreayd been checked to see if it's ok
     # but it also means we should only use it for im=1
+    print('percolation: new percolation starting with seed=', seed)
     np.random.seed(seed)
     random.seed(seed)
-    print('percolation: new percolation starting with seed=', seed)
 
     #create_directory('percolating')   #if we want to classify them inside each density directory
     #create_directory('not_percolating')
@@ -542,7 +542,7 @@ def percolation_density(number_configs,perco_list,lattice_size):
     dens=[]
     start1= time.time()
     configs_wanted=number_configs
-    #seed=int(binascii.hexlify(os.urandom(16)),16)
+    #seed=int(binascii.hexlify(os.urandom(4)),16)
     for p in perco_list:
         print('percolation_density: workin on p=', p)
 
@@ -562,11 +562,11 @@ def percolation_density(number_configs,perco_list,lattice_size):
             configs_tomake = configs_wanted - configs_existing   #nbre_images
             print('percolation_density: configs existing, wanted, tomake=',configs_existing, configs_wanted, configs_tomake)
             while configs_tomake > 0:
-                seed=int(binascii.hexlify(os.urandom(16)),16)
+                seed=int(binascii.hexlify(os.urandom(4)),16)
                 if seed in seeds_existing: #seed_list:
                     print('Image with seed = ',seed, 'already exists')
                     while seed in seeds_existing:
-                        seed=int(binascii.hexlify(os.urandom(16)),16)
+                        seed=int(binascii.hexlify(os.urandom(4)),16)
                     seeds_existing.append(seed)
                     print('--- NEW seed ', seed, ' scheduled to be made')
                     # now we have a good seed, let's percolate
