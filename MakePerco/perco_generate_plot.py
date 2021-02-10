@@ -21,9 +21,6 @@ def plot_im_lattice(filename_pkl):
         plt.close('all')      
         return
     
-    
-    
-    
 def plot_corr_funcs(filename_corr, filename_pkl): 
     corr_data  = np.loadtxt(filename_corr, unpack=True)
     data=pickle.load(open(filename_pkl,"rb"))
@@ -67,13 +64,15 @@ def plot_corr_funcs(filename_corr, filename_pkl):
         plt.savefig(filename+'log'+'.png')
         plt.close('all')
         return
-#############################################################################################
-filename_pkl= str(sys.argv[1])
-filename_corr= str(sys.argv[2])
+#############################################################
+option_select= int(sys.argv[1])
+filename_pkl= str(sys.argv[2])
+filename_corr= str(sys.argv[3])
 
-
-
-
-plot_im_lattice(filename_pkl)
-
-plot_corr_funcs(filename_corr, filename_pkl)
+if option_select==0 :
+    plot_im_lattice(filename_pkl)
+elif option_select==1 :
+    plot_corr_funcs(filename_corr, filename_pkl)
+else:
+    plot_im_lattice(filename_pkl)
+    plot_corr_funcs(filename_corr, filename_pkl)

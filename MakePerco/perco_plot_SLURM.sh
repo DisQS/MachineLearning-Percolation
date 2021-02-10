@@ -2,40 +2,24 @@
 
 dir=${1:-../data}
 size=${2:-10}
+option=${3:-0}
+cores=${4:-1}
   
-
 codedir=`pwd`
 
-echo "PERCO: dir=" $dir ", size=" $size
-
+echo "PERCO: dir=" $dir ", size=" $size ", option=" $option ", cores=" $cores
 
 cd $dir
 cd "L"$size
 
-
-
-
-
-
-
-EXT=pkl
-EXT_txt=corr_func.txt
-
-
-for directory in */
+for directory in p0*
 do
 
-for files1 in $directory*.pkl
-do 
-echo $files1
+cd $directory
 
-for files2 in $directory*corr_func.txt
-do
-echo $files2
+jobfile="plot-"$size-$directory".sh"
 
-
-jobfile=`printf "$images.sh"`
-echo $jobfile
+#echo $jobfile
 
 cat > ${jobfile} << EOD
 #!/bin/bash
@@ -50,12 +34,13 @@ module load Anaconda3
 pwd
 echo "--- working in directory=$directory"
 
-python $codedir/perco_generate_im.py $files1 $files2
+#python $codedir/perco_generate_plot.py $option $pklfile `basename $pklfile .pkl`.cor
+ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_plot.py 0 {} {}
 
-echo "--- finished in directory=  $directory"
+#echo "--- finished in directory=  $directory"
 EOD
 
-cat ${jobfile}
+#cat ${jobfile}
 
 chmod 755 ${jobfile}
 chmod g+w ${jobfile}
@@ -64,6 +49,7 @@ chmod g+w ${jobfile}
 #(sbatch ${jobfile})
 (./${jobfile})
 
+cd ..
 done
-done
-done
+
+cd $codedir
