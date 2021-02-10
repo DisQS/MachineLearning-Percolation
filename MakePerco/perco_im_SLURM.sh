@@ -2,17 +2,16 @@
 
 dir=${1:-../data}
 size=${2:-10}
-dir2=${3:-/p_occ}
-#filename=${4:-filename}  
+  
 
 codedir=`pwd`
 
-echo "PERCO: dir=" $dir" , size=" $size" , dir2=" $dir2
+echo "PERCO: dir=" $dir ", size=" $size
 
 
 cd $dir
 cd "L"$size
-cd $dir2
+
 
 
 
@@ -20,13 +19,22 @@ cd $dir2
 
 
 EXT=pkl
-EXT_txt=txt
+EXT_txt=corr_func.txt
 
-for files_pkl, files_txt in *.${EXT} and *.${EXT_txt}
+
+for directory in */
+do
+
+for files1 in $directory*.pkl
 do 
-echo "---  dir=" $dir2
+echo $files1
 
-jobfile=`printf "$dir2.sh"`
+for files2 in $directory*corr_func.txt
+do
+echo $files2
+
+
+jobfile=`printf "$images.sh"`
 echo $jobfile
 
 cat > ${jobfile} << EOD
@@ -40,11 +48,11 @@ module load Anaconda3
 #conda init --all; conda activate
 
 pwd
-echo "--- working in directory=$dir2"
+echo "--- working in directory=$directory"
 
-python $codedir/perco_generate_im.py $files_pkl $files_txt
+python $codedir/perco_generate_im.py $files1 $files2
 
-echo "--- finished in directory= " $dir2
+echo "--- finished in directory=  $directory"
 EOD
 
 cat ${jobfile}
@@ -52,8 +60,10 @@ cat ${jobfile}
 chmod 755 ${jobfile}
 chmod g+w ${jobfile}
 #(sbatch -q devel ${jobfile})
-(sbatch -q taskfarm ${jobfile})
+#(sbatch -q taskfarm ${jobfile})
 #(sbatch ${jobfile})
-#(./${jobfile})
+(./${jobfile})
 
+done
+done
 done
