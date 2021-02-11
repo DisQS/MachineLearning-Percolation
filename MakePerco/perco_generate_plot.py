@@ -41,8 +41,6 @@ def plot_corr_funcs(filename_corr, filename_pkl):
         p_reg=re.findall(regex2,p_occ)
         p=float(p_reg[0])
     
-    
-   
         plt.plot(corr_data[0],corr_data[1],label='g(r) every clusters')
         plt.plot(corr_data[3],corr_data[4], label='largest cluster')
         plt.axhline(y=square_proba, color='g', linestyle='--')
