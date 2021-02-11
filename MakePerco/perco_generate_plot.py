@@ -10,14 +10,20 @@ def plot_im_lattice(filename_pkl):
     data=pickle.load(open(filename_pkl,"rb"))
     cluster_pbc_norm=data['cluster_pbc_norm']
     filename, file_extension = os.path.splitext(filename_pkl)
-    if filename+'_im_lattice.png' in os.listdir('.'):
+    if filename+'.png' in os.listdir('.'):
         return
 
     else:
         fig=plt.figure()
         plt.axis('off')
         plt.imshow(cluster_pbc_norm,cmap='Greys')
-        plt.imsave(filename+'_im_lattice.png', cluster_pbc_norm,cmap='Greys')
+        plt.imsave(filename+'.png', cluster_pbc_norm,cmap='Greys')
+        # reshuffle greys random
+        plt.imshow(cluster_pbc_norm,cmap='Greys')
+        plt.imsave(filename+'_s.png', cluster_pbc_norm,cmap='Greys')
+        # reshuffle greys random with largest cluster BLACK
+        plt.imshow(cluster_pbc_norm,cmap='Greys')
+        plt.imsave(filename+'_b.png', cluster_pbc_norm,cmap='Greys')
         plt.close('all')      
         return
     
