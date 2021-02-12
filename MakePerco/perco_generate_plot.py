@@ -9,21 +9,46 @@ def plot_im_lattice(filename_pkl):
     
     data=pickle.load(open(filename_pkl,"rb"))
     cluster_pbc_norm=data['cluster_pbc_norm']
+    cluster_pbc_int=data['cluster_pbc_int']
+    n_clusters=data['n_clusters_pbc']
+    
     filename, file_extension = os.path.splitext(filename_pkl)
     if filename+'.png' in os.listdir('.'):
         return
 
     else:
+
+        L_size=filename.split('_')[8]      
+        regex1 = re.compile('\d+')
+        size_sys_reg=re.findall(regex1,L_size)
+        size=int(size_sys_reg[0])
+
         fig=plt.figure()
         plt.axis('off')
         plt.imshow(cluster_pbc_norm,cmap='Greys')
         plt.imsave(filename+'.png', cluster_pbc_norm,cmap='Greys')
+        plt.close('all')
+
         # reshuffle greys random
-        plt.imshow(cluster_pbc_norm,cmap='Greys')
-        plt.imsave(filename+'_s.png', cluster_pbc_norm,cmap='Greys')
+        new_mapping = np.arange(1,n_clusters+1)
+        np.random.shuffle(new_mapping)
+        reshuffle= np.array([new_mapping[v-1] \
+                            if not v == 0 else 0 for v in cluster_pbc_int.flat]).reshape(size,size)
+        plt.imshow(reshuffle,cmap='Greys')
+        plt.imsave(filename+'_s.png',reshuffle,cmap='Greys')
+        plt.close('all')
+
         # reshuffle greys random with largest cluster BLACK
+        new_mapping_largest = np.arange(1,n_clusters)
+        #print('OLD UNcomplete',new_mapping_largest, 'n_clusters=',n_clusters)
+        np.random.shuffle(new_mapping_largest)
+        #print('new UNcomplete',new_mapping_largest)
+        new_mapping_largest=np.append(new_mapping_largest,[n_clusters])
+        #print('new complete',new_mapping_largest)
+        reshuffle_largest= np.array([new_mapping_largest[v-1] \
+                                     if not (v == 0)  else 0 for v in cluster_pbc_int.flat]).reshape(size,size)
         plt.imshow(cluster_pbc_norm,cmap='Greys')
-        plt.imsave(filename+'_b.png', cluster_pbc_norm,cmap='Greys')
+        plt.imsave(filename+'_b.png', reshuffle_largest,cmap='Greys')
         plt.close('all')      
         return
     
