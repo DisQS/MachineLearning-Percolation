@@ -13,22 +13,26 @@ def plot_im_lattice(filename_pkl):
     n_clusters=data['n_clusters_pbc']
     
     filename, file_extension = os.path.splitext(filename_pkl)
-    if filename+'.png' in os.listdir('.'):
+
+    L_size=filename.split('_')[8]      
+    regex1 = re.compile('\d+')
+    size_sys_reg=re.findall(regex1,L_size)
+    size=int(size_sys_reg[0])
+
+    if (filename+'.png' and filename+'_s.png' and filename+'_b.png')  in os.listdir('.'):
         return
+        
 
-    else:
-
-        L_size=filename.split('_')[8]      
-        regex1 = re.compile('\d+')
-        size_sys_reg=re.findall(regex1,L_size)
-        size=int(size_sys_reg[0])
+    if filename+'.png' not in os.listdir('.'):
 
         fig=plt.figure()
         plt.axis('off')
         plt.imshow(cluster_pbc_norm,cmap='Greys')
         plt.imsave(filename+'.png', cluster_pbc_norm,cmap='Greys')
         plt.close('all')
-
+        
+     
+    if filename+'_s.png' not in os.listdir('.'): 
         # reshuffle greys random
         new_mapping = np.arange(1,n_clusters+1)
         np.random.shuffle(new_mapping)
@@ -37,7 +41,9 @@ def plot_im_lattice(filename_pkl):
         plt.imshow(reshuffle,cmap='Greys')
         plt.imsave(filename+'_s.png',reshuffle,cmap='Greys')
         plt.close('all')
+        
 
+    if filename+'_b.png' not in os.listdir('.')
         # reshuffle greys random with largest cluster BLACK
         new_mapping_largest = np.arange(1,n_clusters)
         #print('OLD UNcomplete',new_mapping_largest, 'n_clusters=',n_clusters)
@@ -50,7 +56,7 @@ def plot_im_lattice(filename_pkl):
         plt.imshow(cluster_pbc_norm,cmap='Greys')
         plt.imsave(filename+'_b.png', reshuffle_largest,cmap='Greys')
         plt.close('all')      
-        return
+    return
     
 def plot_corr_funcs(filename_corr, filename_pkl): 
     corr_data  = np.loadtxt(filename_corr, unpack=True)
