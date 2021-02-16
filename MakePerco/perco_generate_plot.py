@@ -33,17 +33,19 @@ def plot_im_lattice(filename_pkl):
         
      
     if filename+'_s.png' not in os.listdir('.'): 
-        # reshuffle greys random
+        # reshuffle greys random 
         new_mapping = np.arange(1,n_clusters+1)
         np.random.shuffle(new_mapping)
         reshuffle= np.array([new_mapping[v-1] \
                             if not v == 0 else 0 for v in cluster_pbc_int.flat]).reshape(size,size)
+        fig=plt.figure()
+        plt.axis('off')
         plt.imshow(reshuffle,cmap='Greys')
         plt.imsave(filename+'_s.png',reshuffle,cmap='Greys')
         plt.close('all')
         
 
-    if filename+'_b.png' not in os.listdir('.')
+    if filename+'_b.png' not in os.listdir('.'):
         # reshuffle greys random with largest cluster BLACK
         new_mapping_largest = np.arange(1,n_clusters)
         #print('OLD UNcomplete',new_mapping_largest, 'n_clusters=',n_clusters)
@@ -53,7 +55,9 @@ def plot_im_lattice(filename_pkl):
         #print('new complete',new_mapping_largest)
         reshuffle_largest= np.array([new_mapping_largest[v-1] \
                                      if not (v == 0)  else 0 for v in cluster_pbc_int.flat]).reshape(size,size)
-        plt.imshow(cluster_pbc_norm,cmap='Greys')
+        fig=plt.figure()
+        plt.axis('off')
+        plt.imshow(reshuffle_largest,cmap='Greys')
         plt.imsave(filename+'_b.png', reshuffle_largest,cmap='Greys')
         plt.close('all')      
     return
