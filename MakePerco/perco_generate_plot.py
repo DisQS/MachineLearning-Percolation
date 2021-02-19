@@ -36,7 +36,7 @@ def plot_im_lattice(filename_pkl):
         # reshuffle greys random 
         new_mapping = np.arange(1,n_clusters+1)
         np.random.shuffle(new_mapping)
-        reshuffle= np.array([new_mapping[v-1] \
+        reshuffle= np.array([new_mapping[v-1]/n_clusters \
                             if not v == 0 else 0 for v in cluster_pbc_int.flat]).reshape(size,size)
         fig=plt.figure()
         plt.axis('off')
@@ -53,7 +53,7 @@ def plot_im_lattice(filename_pkl):
         #print('new UNcomplete',new_mapping_largest)
         new_mapping_largest=np.append(new_mapping_largest,[n_clusters])
         #print('new complete',new_mapping_largest)
-        reshuffle_largest= np.array([new_mapping_largest[v-1] \
+        reshuffle_largest= np.array([new_mapping_largest[v-1]/n_clusters \
                                      if not (v == 0)  else 0 for v in cluster_pbc_int.flat]).reshape(size,size)
         fig=plt.figure()
         plt.axis('off')
