@@ -9,12 +9,14 @@ import time
 import datetime
 import pickle
 import re
+from math import sqrt 
+    
 
 
 def correlation_function_pbc(filename_data):
-    from math import sqrt
+    
     filename, file_extension = os.path.splitext(filename_data)
-    if filename+'_corr_func'+'.txt' in os.listdir('.'):
+    if filename+'.cor' in os.listdir('.'):
         return
     else:
         data=pickle.load(open(filename_data,"rb"))
@@ -216,7 +218,7 @@ def correlation_function_pbc(filename_data):
 
         corr_value_zipped=list(zip(new_distance,correlation_value, corr_proba_largest,new_distance_largest,correlation_value_largest))
         header = '{0:^5s}   {1:^7s}   {2:^7s} {3:^5s}   {4:^7s} '.format('distance', 'Corr func','Corr func-proba largest','distance','Corr func largest')
-        np.savetxt(filename+'_corr_func'+'.txt',corr_value_zipped, header=header, fmt=['    %.7f  ','    %.7f  ','    %.7f  ','  %.7f','  %.7f'])
+        np.savetxt(filename+'.cor',corr_value_zipped, header=header, fmt=['    %.7f  ','    %.7f  ','    %.7f  ','  %.7f','  %.7f'])
 
 
 
@@ -227,21 +229,121 @@ def correlation_function_pbc(filename_data):
 
     
     return new_distance,correlation_value, new_distance_largest,correlation_value_largest, new_corr_before_average
+  ################################################################################################################
+
+def correlation_l(filename_pkl):
+    print(filename_corr)
+    from math import sqrt
     
+    start=time.time()
+    correlation=0
+    sq_corr_l=0
+    denom=0
+    correlation_large=0
+    denom_large=0
+   
+    filename=filename_pkl.rsplit('.', 1)[0]
+    
+    corr_data= np.loadtxt(filename+'.cor', unpack=True)
+
+    pkl_file=open(filename_pkl,"rb")
+    dictionary=pickle.load(pkl_file)
+    pkl_file.close()
+    
+    
+    
+    
+    
+    proba_largest=dictionary['proba largest']
+
+    if 'correlation length' in dictionary.keys():
+        return
+    else:
+        for i in range(len(corr_data[0])):
+            
+            corr_value=corr_data[1][i]-proba_largest
+            if corr_value>=0 and corr_value>=10**(-8):
+
+                correlation_large+= ((corr_data[0][i]**2)*(corr_data[1][i]-proba_largest))
+              
+                denom_large+=(corr_data[1][i]-proba_largest)
+        
+            else:
+                break
+        sq_corr_l=(correlation_large/(6*denom_large))
+        
+
+    if sq_corr_l==0:
+        correlation_length=0
+    elif sq_corr_l<0:
+        correlation_length=0
+
+    else:
+        correlation_length=sqrt(sq_corr_l)
+
+    
+        
+        
+        
+    dictionary.update({'correlation length':correlation_length})
+    
+    new_pkl_file = open(filename+'.pkl', 'wb')
+    pickle.dump(dictionary, new_pkl_file)
+    new_pkl_file.close()
+    end=time.time()-start
+    print('corre_length_end',end)
+    return correlation_length
+
+
+
+
+##########################################################  
+def average_correlation_l(directory):
+    sum_corr_l=0
+    div=0
+    for fname in os.listdir(directory):
+        if fname.endswith('.pkl'):
+            pkl_file = open(fname, 'rb')
+            dictionary=pickle.load(pkl_file)
+            pkl_file.close()
+            filename, file_extension = os.path.splitext(fname)
+            if 'correlation length' not in dictionary.keys():
+                print('the correlation length associated to file',fname,'is missing')
+                return
+            else:
+                sum_corr_l=0
+                div+=1
+    average_correlation_length=sum_corr_l/div
+
+
+
+    txt_file=open('average_correlation_length'+'.txt', "w+")
+    txt_file.write('\n'+repr(average_correlation_length)+'\n')
+    txt_file.close()
+
+    return
+    
+                
+                
+                
+        
     
     
 #########################################################################################################################
-#if ( len(sys.argv) == 1 ):
-#directory=str(sys.argv[1])
-filename= str(sys.argv[1])
 
- 
-correlation_function_pbc(filename)
+option_select= int(sys.argv[1])
+filename_pkl= str(sys.argv[2])
+filename_corr= str(sys.argv[3])
 
 
-#else:
-#    print ('Number of', len(sys.argv), \
-#           'arguments is less than expected (1) --- ABORTING!')
-#    print ('Usage: python '+sys.argv[0],\
- #          ' filename')
-    #print ('Argument List:', str(sys.argv)) 
+if option_select==0 :
+    correlation_function_pbc(filename_pkl)
+elif option_select==1 :
+    
+    correlation_l(filename_corr)
+
+else:
+    average_correlation_l('.')
+    
+
+    
