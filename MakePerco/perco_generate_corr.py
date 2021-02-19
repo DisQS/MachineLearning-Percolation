@@ -11,8 +11,6 @@ import pickle
 import re
 from math import sqrt 
     
-
-
 def correlation_function_pbc(filename_data):
     
     filename, file_extension = os.path.splitext(filename_data)
@@ -26,11 +24,6 @@ def correlation_function_pbc(filename_data):
         proba_largest=data['proba largest']
         n_clusters=data['n_clusters_pbc']
 
-
-
-
-
-
         L_size=filename.split('_')[8]      
         regex1 = re.compile('\d+')
         size_sys_reg=re.findall(regex1,L_size)
@@ -40,7 +33,6 @@ def correlation_function_pbc(filename_data):
         regex2 = re.compile('\d+\.\d+')
         p_reg=re.findall(regex2,p_occ)
         p=float(p_reg[0])
-
 
         seed_sys=filename.split('_')[9]      
         regex3 = re.compile('\d+')
@@ -65,7 +57,6 @@ def correlation_function_pbc(filename_data):
 
         print('start correlation function',datetime.datetime.now())
 
-
         new_occupied = lattice.nonzero()
         new_occ=zip(*new_occupied)
 
@@ -79,14 +70,10 @@ def correlation_function_pbc(filename_data):
                             x_distance=abs(x0-x1)
                             y_distance=abs(y0-y1)
 
-
-
-
                             if x_distance>(l/2):
                                 x_distance=abs(l-x_distance) 
                             if y_distance>(l/2):
                                 y_distance=abs(l-y_distance) 
-
 
                             distance=x_distance**2+ y_distance**2       
 
@@ -97,24 +84,21 @@ def correlation_function_pbc(filename_data):
                             if square_distance[distance]!=distance:
                                 square_distance[distance]=distance
 
-
-
+                            # correlation function for all clusters
                             if lattice[y0,x0]!=0 and lattice[y1,x1]!=0 and lattice[y0,x0]==lattice[y1,x1] : 
                                 corr2[distance]+=1
-
                                 if x0!=x1 or y0!=y1:
                                     corr2[distance]+=1
+
+                            # correlation fcn for largest cluster
                             if lattice[y0,x0]==n_clusters:
                                 div_pbc_max_cluster[distance]+=1
                                 if x0!=x1 or y0!=y1:
                                     div_pbc_max_cluster[distance]+=1
-
                                 if lattice[y0,x0]!=0 and  lattice[y1,x1]!=0 and lattice[y0,x0]==lattice[y1,x1]: 
                                     corr_max_cluster[distance]+=1
                                     if x0!=x1 or y0!=y1:
                                         corr_max_cluster[distance]+=1
-
-
                     else:
 
                         for x1 in range(l): 
@@ -122,17 +106,13 @@ def correlation_function_pbc(filename_data):
                             x_distance=abs(x0-x1)
                             y_distance=abs(y0-y1)
 
-
                             if x_distance>(l/2):
                                 x_distance=abs(l-x_distance)
-
 
                             if y_distance>(l/2):
                                 y_distance=abs(l-y_distance) 
 
-
                             distance= x_distance**2+ y_distance**2
-
 
                             div_pbc[distance]+=1
                             if x0!=x1 or y0!=y1:
@@ -140,8 +120,6 @@ def correlation_function_pbc(filename_data):
 
                             if square_distance[distance]!=distance:
                                 square_distance[distance]=distance
-
-
 
                             if lattice[y0,x0]!=0 and lattice[y1,x1]!=0 and lattice[y0,x0]==lattice[y1,x1]: 
                                 corr2[distance]+=1
@@ -158,15 +136,11 @@ def correlation_function_pbc(filename_data):
                                     if x0!=x1 or y0!=y1:
                                         corr_max_cluster[distance]+=1
 
-
         end50=time.time()-start50
         print('end correlation function',end50)
 
-
         length=len(div_pbc)
         print('test')
-
-
 
         sqrt_distance=[sqrt(square_distance[h]) for h in range(len(square_distance))]
         sqrt_distance=np.array(sqrt_distance)
@@ -183,16 +157,11 @@ def correlation_function_pbc(filename_data):
 
         new_distance=np.insert(new_distance, 0, 0)
 
-
         index_max=np.max(np.nonzero(new_corr_before_average))
         len_zero=len(new_distance)-(index_max+1)
         new_average=np.concatenate((correlation_value[:index_max+1],np.zeros(len_zero)))
         new_corr_before_average=np.concatenate((new_corr_before_average[:index_max+1],np.zeros(len_zero)))
         correlation_value=np.concatenate((correlation_value[:index_max+1],np.zeros(len_zero)))
-
-
-
-
 
         average_largest=np.divide(corr_max_cluster,div_pbc, out=np.zeros_like(corr_max_cluster), where=div_pbc!=0)
         index_max_corr_largest=np.max(np.nonzero(corr_max_cluster))
@@ -206,13 +175,11 @@ def correlation_function_pbc(filename_data):
 
         new_distance_largest=np.insert(new_distance_largest, 0, 0)
 
-
         index_max_largest=np.max(np.nonzero(new_corr_before_average_largest))
         len_zero_largest=len(new_distance_largest)-(index_max_largest+1)
         new_average_largest=np.concatenate((correlation_value_largest[:index_max_largest+1],np.zeros(len_zero_largest)))
         new_corr_before_average_largest=np.concatenate((new_corr_before_average_largest[:index_max_largest+1],np.zeros(len_zero_largest)))
         correlation_value_largest=np.concatenate((correlation_value_largest[:index_max_largest+1],np.zeros(len_zero_largest)))
-
 
         corr_proba_largest=correlation_value-proba_largest
 
@@ -220,14 +187,9 @@ def correlation_function_pbc(filename_data):
         header = '{0:^5s}   {1:^7s}   {2:^7s} {3:^5s}   {4:^7s} '.format('distance', 'Corr func','Corr func-proba largest','distance','Corr func largest')
         np.savetxt(filename+'.cor',corr_value_zipped, header=header, fmt=['    %.7f  ','    %.7f  ','    %.7f  ','  %.7f','  %.7f'])
 
-
-
-
-
         end6=time.time()-start50
         print('end correlation function',end6)
 
-    
     return new_distance,correlation_value, new_distance_largest,correlation_value_largest, new_corr_before_average
   ################################################################################################################
 
