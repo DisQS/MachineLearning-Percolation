@@ -2,30 +2,27 @@
 
 dir=${1:-../data}
 size=${2:-10}
-dir2=${3:-/p_occ}
-#filename=${4:-filename}  
+
+  
 
 codedir=`pwd`
 
-echo "PERCO: dir=" $dir" , size=" $size" , dir2=" $dir2
+echo "PERCO: dir=" $dir ", size=" $size 
 
 
 cd $dir
 cd "L"$size
-cd $dir2
-
-
-
-
-
 
 EXT=pkl
 
-for files in *.${EXT}
-do 
-echo "---  dir=" $dir2
+for directory in */
+do
 
-jobfile=`printf "$dir2.sh"`
+for files in $directory*.${EXT}
+do 
+
+echo $files
+jobfile=`printf "$corr.sh"`
 echo $jobfile
 
 cat > ${jobfile} << EOD
@@ -39,11 +36,11 @@ module load Anaconda3
 #conda init --all; conda activate
 
 pwd
-echo "--- working in directory=$dir2"
+echo "--- working in directory=$directory"
 
-python $codedir/perco_generate_corr.py $files 
+python $codedir/perco_generate_corr.py  $files 
 
-echo "--- finished in directory= " $dir2
+echo "--- finished in directory=$directory"
 EOD
 
 cat ${jobfile}
@@ -55,4 +52,5 @@ chmod g+w ${jobfile}
 #(sbatch ${jobfile})
 #(./${jobfile})
 
+done
 done
