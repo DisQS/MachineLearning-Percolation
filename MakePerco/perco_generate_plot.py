@@ -73,7 +73,6 @@ def plot_im_lattice(filename_pkl):
             occ_num.append((key,value))  
         for num in range(len(occ_num)):
             if occ_num[num][1]>1:
-                print(occ_num[num])
                 ratio.update({occ_num[num][0]:1/occ_num[num][1]})
         several=list(ratio.keys())
         mapping_values=list(original_map.values())
