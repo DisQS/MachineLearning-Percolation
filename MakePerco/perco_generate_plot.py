@@ -4,6 +4,7 @@ import re
 import pickle
 import sys 
 import numpy as np
+from collections import Counter, OrderedDict
 
 def plot_im_lattice(filename_pkl):
     
@@ -19,7 +20,7 @@ def plot_im_lattice(filename_pkl):
     size_sys_reg=re.findall(regex1,L_size)
     size=int(size_sys_reg[0])
 
-    if (filename+'.png' and filename+'_s.png' and filename+'_b.png')  in os.listdir('.'):
+    if (filename+'.png' and filename+'_s.png' and filename+'_b.png'and filename+'_a.png')  in os.listdir('.'):
         return
         
 
@@ -59,7 +60,43 @@ def plot_im_lattice(filename_pkl):
         plt.axis('off')
         plt.imshow(reshuffle_largest,cmap='Greys')
         plt.imsave(filename+'_b.png', reshuffle_largest,cmap='Greys')
-        plt.close('all')      
+        plt.close('all') 
+    if filename+'_a.png' not in os.listdir('.'):
+        ratio={}
+        occ_num=[]
+        inc=0
+        num_clus, number_sites = np.unique(cluster_pbc_int, return_counts=True)
+        original_map=dict(zip(num_clus, number_sites))
+        counter=Counter(original_map.values())
+
+        for key,value in counter.items():
+            occ_num.append((key,value))  
+        for num in range(len(occ_num)):
+            if occ_num[num][1]>1:
+                print(occ_num[num])
+                ratio.update({occ_num[num][0]:1/occ_num[num][1]})
+        several=list(ratio.keys())
+        mapping_values=list(original_map.values())
+        new_mapping_values=np.zeros(len(mapping_values))
+        for value in range(len(mapping_values)):
+            if mapping_values[value] in several and mapping_values[value]==mapping_values[value-1]:
+                p=ratio[mapping_values[value]]
+                new_mapping_values[value]=mapping_values[value]+p*inc
+                inc+=1
+            elif mapping_values[value] in several and mapping_values[value]!=mapping_values[value-1]:
+                inc=0
+                p=ratio[mapping_values[value]]
+                new_mapping_values[value]=mapping_values[value]+p*inc
+                inc+=1
+            else:
+                new_mapping_values[value]=mapping_values[value]
+                a_mapping= np.array([new_mapping_values[v]/n_clusters \
+                            if not v == 0 else 0 for v in cluster_pbc_int.flat]).reshape(size,size)
+        fig=plt.figure()
+        plt.axis('off')
+        plt.imshow(a_mapping,cmap='Greys')
+        plt.imsave(filename+'_a.png', a_mapping,cmap='Greys')
+        plt.close('all')
     return
     
 def plot_corr_funcs(filename_corr, filename_pkl): 
