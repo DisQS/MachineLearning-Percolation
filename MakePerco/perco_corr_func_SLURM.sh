@@ -49,9 +49,9 @@ cat ${jobfile}
 chmod 755 ${jobfile}
 chmod g+w ${jobfile}
 #(sbatch -q devel ${jobfile})
-#(sbatch -q taskfarm ${jobfile})
+(sbatch -q taskfarm ${jobfile})
 #(sbatch ${jobfile})
-(./${jobfile})
+#(./${jobfile})
 
 cd ..
 done
