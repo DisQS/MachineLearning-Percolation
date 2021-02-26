@@ -20,9 +20,9 @@ def correlation_function_pbc(filename_data):
         data=pickle.load(open(filename_data,"rb"))
 
         lattice=data['cluster_pbc_int'] #cluster_pbc_int
-        square_proba=data['square proba']
+        #square_proba=data['square proba']
         proba_largest=data['proba largest']
-        n_clusters=data['n_clusters_pbc']
+        #n_clusters=data['n_clusters_pbc']
 
         L_size=filename.split('_')[8]      
         regex1 = re.compile('\d+')
@@ -38,12 +38,14 @@ def correlation_function_pbc(filename_data):
         regex3 = re.compile('\d+')
         seed_sys_reg=re.findall(regex3,seed_sys)
         seed=int(seed_sys_reg[0])
-
-        n_clus_sys=filename.split('_')[11]      
+        
+        n_clus_sys=filename.split('_')[10]     
         regex4 = re.compile('\d+')
         n_clus_sys_reg=re.findall(regex4,n_clus_sys)
         n_clusters=int(n_clus_sys_reg[0])
 
+        square_proba=p*p
+		
         start50=time.time()
 
         square_distance=np.zeros(l**2)
@@ -273,7 +275,7 @@ def average_correlation_l(directory):
                 print('the correlation length associated to file',fname,'is missing')
                 return
             else:
-                sum_corr_l=0
+                sum_corr_l+=dictionary['correlation length']
                 div+=1
     average_correlation_length=sum_corr_l/div
 
