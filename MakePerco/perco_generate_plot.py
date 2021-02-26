@@ -20,9 +20,8 @@ def plot_im_lattice(filename_pkl):
     size_sys_reg=re.findall(regex1,L_size)
     size=int(size_sys_reg[0])
 
-    if (filename+'.png' and filename+'_s.png' and filename+'_b.png'and filename+'_a.png')  in os.listdir('.'):
+    if (filename+'.png' and filename+'_s.png' and filename+'_b.png' and filename+'_a.png')  in os.listdir('.'):
         return
-        
 
     if filename+'.png' not in os.listdir('.'):
 
@@ -32,7 +31,6 @@ def plot_im_lattice(filename_pkl):
         plt.imsave(filename+'.png', cluster_pbc_norm,cmap='Greys')
         plt.close('all')
         
-     
     if filename+'_s.png' not in os.listdir('.'): 
         # reshuffle greys random 
         new_mapping = np.arange(1,n_clusters+1)
@@ -44,7 +42,6 @@ def plot_im_lattice(filename_pkl):
         plt.imshow(reshuffle,cmap='Greys')
         plt.imsave(filename+'_s.png',reshuffle,cmap='Greys')
         plt.close('all')
-        
 
     if filename+'_b.png' not in os.listdir('.'):
         # reshuffle greys random with largest cluster BLACK
@@ -61,7 +58,9 @@ def plot_im_lattice(filename_pkl):
         plt.imshow(reshuffle_largest,cmap='Greys')
         plt.imsave(filename+'_b.png', reshuffle_largest,cmap='Greys')
         plt.close('all') 
+
     if filename+'_a.png' not in os.listdir('.'):
+        # reshuffle greys according to cluster size with largest cluster BLACK
         ratio={}
         occ_num=[]
         inc=0
