@@ -299,14 +299,24 @@ option_select= int(sys.argv[1])
 filename_pkl= str(sys.argv[2])
 filename_corr= str(sys.argv[3])
 
+# 1 = 001 = cf
+# 2 = 010 = cl, assumes that cf exists
+# 4 = 100 = al, assumes cl exists
+# 3 = 011 = cf, cl
+# 7 = 111 = cf, cl, al
 
-if option_select==0 :
+if option_select==1 :
     correlation_function_pbc(filename_pkl)
-elif option_select==1 :
-    
+elif option_select==2 :
     correlation_l(filename_corr)
-
+elif option_select==3 :
+    correlation_function_pbc(filename_pkl)
+    correlation_l(filename_corr)
+elif option_select==4 :
+    average_correlation_l('.')
 else:
+    correlation_function_pbc(filename_pkl)
+    correlation_l(filename_corr)
     average_correlation_l('.')
     
 
