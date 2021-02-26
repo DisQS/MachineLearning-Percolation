@@ -217,23 +217,6 @@ def size_spanning_cluster(spanning_set,cluster,cluster_pbc_int):
 
 
 #################################################################################
-def size_max(order_pbc,n_clusters):
-    
-    L=order_pbc
-    values=[]
-    keys=[]
-
-    for k, v in L.items():
-        if k!=-1:
-            keys.append(k)
-            values.append(v)
-    max_clus=max(values)
-    max_n_clus=n_clusters
-    
-    return max_clus, max_n_clus
-
-
-################################################################################
 def mapping_cluster(cluster_nan,cluster_pbc_int,n_perco):
 
     mapping = dict(zip(cluster_nan.flat,cluster_pbc_int.flat))
@@ -398,25 +381,27 @@ def percolation(im,p,size_sys,seed):
 
         
         
+        all_sizes_pbc = Counter(list(sizes_pbc.values()))
+        
+        #get size of largest cluster
+        if n_clusters_pbc !=0:
+            max_size_pbc = max(all_sizes_pbc.keys())
+        
         occ=len(list(zip(*cluster_int.nonzero())))
         start4=time.time()
-        size_maxi=size_max(order_pbc,n_clusters_pbc)
-        proba_largest= (size_maxi[0]/(size_sys**2))**2
+        proba_largest=(max_size_pbc/(size_sys**2))**2
 
         square_proba=p*p
 
-        print('max_clus',size_maxi[0],'\n')
+       
+        print('max clus', max_size_pbc)
         
         
  
         end4=time.time()-start4
 
         
-        all_sizes = Counter(list(sizes.values()))
         
-        #get size of largest cluster
-        if n_clusters_pbc !=0:
-            max_size = max(all_sizes.keys())
             
         occ=len(list(zip(*cluster_int.nonzero())))
 
@@ -470,13 +455,13 @@ def percolation(im,p,size_sys,seed):
  
    
             filename1='pc_1_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__p'+str(p)+'_L'+str(size_sys)+'_s'+str(seed)+\
-                        '_n_clus'+str(n_clusters_pbc)+'_size_max_clus'+str(max_size)+'_'
+                        '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
 
                 
                 
-            text_file1=open(filename1+'info.txt', "w+")
+            text_file1=open(filename1+'.txt', "w+")
             text_file1.write('Total number of cluster= '+ repr(n_clusters)+'\n')
-            text_file1.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size)+'\n')
+            text_file1.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size_pbc)+'\n')
             text_file1.write('Number of clusters with given size= ' +repr(sizes)+"\n")
             text_file1.close()
 
@@ -487,27 +472,24 @@ def percolation(im,p,size_sys,seed):
                        'cluster_int':cluster_int,
                        'cluster_norm':cluster_norm,
                        'proba largest' : proba_largest,
-                        'square proba':square_proba}
+                        'square proba':square_proba,
+                        'size max cluster':max_size_pbc}
             
-            pkl_file1= open(filename1+'data_pkl'+'.pkl', "wb")
+            pkl_file1= open(filename1+'.pkl', "wb")
             pickle.dump(data_pkl1,pkl_file1)
             pkl_file1.close()
 
 
         else:
-            size_max(order_pbc,n_clusters_pbc)
-            
-           
-            
             
             filename0='pc_0_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__p'+str(p)+'_L'+str(size_sys)+'_s'+str(seed)+\
-                        '_n_clus'+str(n_clusters_pbc)+'_size_max_clus'+str(size_maxi[0])+'_n'+str(size_maxi[1])+'_'
+                        '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
           
             
 
-            text_file0=open(filename0+'info.txt', "w+")
+            text_file0=open(filename0+'.txt', "w+")
             text_file0.write('Total number of cluster= '+ repr(n_clusters_pbc)+'\n')
-            text_file0.write('Size of the largest cluster (number of site occupied)= '+ repr(size_maxi[0])+'\n')
+            text_file0.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size_pbc)+'\n')
             text_file0.write('Sizes of each clusters (number associated to the cluster: number of occupied sites)= ' +repr(sizes)+"\n")
             text_file0.close()
             
@@ -519,9 +501,10 @@ def percolation(im,p,size_sys,seed):
                        'cluster_int':cluster_int,
                        'cluster_norm':cluster_norm,
                        'proba largest' : proba_largest,
-                        'square proba':square_proba}
+                        'square proba':square_proba,
+                        'size max cluster':max_size_pbc}
             
-            pkl_file0=open(filename0+'data_pkl'+'.pkl', "wb")
+            pkl_file0=open(filename0+'.pkl', "wb")
             pickle.dump(data_pkl0 ,pkl_file0)
             pkl_file0.close()
             
