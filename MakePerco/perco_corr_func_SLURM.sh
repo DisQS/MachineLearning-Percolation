@@ -37,7 +37,7 @@ echo "--- working in directory=$directory"
 
 
 #python $codedir/perco_generate_corr.py $option $pklfile `basename $pklfile .pkl`.cor
-ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_corr.py 0 {} {}
+ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_corr.py 3 {} {}
 
 echo "--- finished in directory=$directory"
 EOD
