@@ -311,6 +311,10 @@ elif option_select==3 :
     correlation_l(filename_corr)
 elif option_select==4 :
     average_correlation_l('corlen_'+L+'_'+p+'.cl')
+else:
+    correlation_function_pbc(filename_pkl)
+    correlation_l(filename_corr)
+    average_correlation_l('corlen_'+L+'_'+p+'.cl')
 
 #else:   # Works but not advised.The average is computed each time a new correlation length is added to the corlen file.
 #    correlation_function_pbc(filename_pkl)

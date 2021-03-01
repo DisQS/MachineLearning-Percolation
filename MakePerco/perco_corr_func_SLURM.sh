@@ -9,7 +9,6 @@ codedir=`pwd`
 
 echo "PERCO: dir=" $dir ", size=" $size ", option=" $option ", cores=" $cores
 
-
 cd $dir
 cd "L"$size
 
@@ -37,7 +36,7 @@ echo "--- working in directory=$directory"
 
 
 #python $codedir/perco_generate_corr.py $option $pklfile `basename $pklfile .pkl`.cor
-ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_corr.py 3 {} {}
+ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_corr.py $option {} {}
 
 echo "--- finished in directory=$directory"
 EOD
