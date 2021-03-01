@@ -26,7 +26,7 @@ cat > ${jobfile} << EOD
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=2012
-#SBATCH --time=00:48:00
+#SBATCH --time=48:00:00
 
 module load Anaconda3
 #conda init --all; conda activate
