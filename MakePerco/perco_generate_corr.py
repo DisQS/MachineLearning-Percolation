@@ -300,6 +300,7 @@ L=directory.rsplit('/', 2)[1]
 # 2 = 010 = cl, assumes that cf exists
 # 4 = 100 = al, assumes cl exists
 # 3 = 011 = cf, cl
+# 6 = 110 = al,cl
 # 7 = 111 = cf, cl, al
 
 if option_select==1 :
@@ -310,6 +311,9 @@ elif option_select==3 :
     correlation_function_pbc(filename_pkl)
     correlation_l(filename_corr)
 elif option_select==4 :
+    average_correlation_l('corlen_'+L+'_'+p+'.cl')
+elif option_select==6 :
+    correlation_l(filename_corr)
     average_correlation_l('corlen_'+L+'_'+p+'.cl')
 else:
     correlation_function_pbc(filename_pkl)

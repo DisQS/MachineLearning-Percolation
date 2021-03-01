@@ -34,9 +34,13 @@ module load Anaconda3
 pwd
 echo "--- working in directory=$directory"
 
-
 #python $codedir/perco_generate_corr.py $option $pklfile `basename $pklfile .pkl`.cor
-ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_corr.py $option {} {}
+
+if [ $option = 1 ]; then
+  ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_corr.py $option {} {}
+else
+  ls *.pkl| parallel -j1 -a - python $codedir/perco_generate_corr.py $option {} {}
+fi
 
 echo "--- finished in directory=$directory"
 EOD
