@@ -42,6 +42,8 @@ echo "--- working on p=$perco"
 
 python $codedir/perco_generate_data.py $size $perco $perco 1 $configs
 
+chmod -R g+w *
+
 echo "--- finished with p=$perco"
 EOD
 

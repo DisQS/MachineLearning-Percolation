@@ -42,6 +42,8 @@ else
   ls *.pkl| parallel -j1 -a - python $codedir/perco_generate_corr.py $option {} {}
 fi
 
+chmod -R g+w *
+
 echo "--- finished in directory=$directory"
 EOD
 
