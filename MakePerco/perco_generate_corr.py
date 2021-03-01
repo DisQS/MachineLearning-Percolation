@@ -278,8 +278,9 @@ def average_correlation_l(filename_cl):
     corr_lengths=corr_data[2]
 
     for corr_l in corr_lengths:
-        sum_corr_l+=corr_l
-        div+=1
+        if corr_l!=0:
+            sum_corr_l+=corr_l
+            div+=1
     average_correlation_length=sum_corr_l/div
 
     txt_file=open('avg_corrlen_L'+str(sys_size)+'_p'+str(p)+'.acl', "w+")
@@ -320,7 +321,3 @@ else:
     correlation_l(filename_corr)
     average_correlation_l('corlen_'+L+'_'+p+'.cl')
 
-#else:   # Works but not advised.The average is computed each time a new correlation length is added to the corlen file.
-#    correlation_function_pbc(filename_pkl)
-#    correlation_l(filename_corr)
-#    average_correlation_l('corlen_'+L+'_'+p+'.cl')
