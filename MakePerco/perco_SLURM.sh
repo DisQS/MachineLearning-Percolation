@@ -42,6 +42,8 @@ echo "--- working on p=$perco"
 
 python $codedir/perco_generate_data.py $size $perco $perco 1 $configs
 
+chmod -R g+w *
+
 echo "--- finished with p=$perco"
 EOD
 
@@ -50,8 +52,8 @@ cat ${jobfile}
 chmod 755 ${jobfile}
 chmod g+w ${jobfile}
 #(sbatch -q devel ${jobfile})
-(sbatch -q taskfarm ${jobfile})
+#(sbatch -q taskfarm ${jobfile})
 #(sbatch ${jobfile})
-#(./${jobfile})
+(./${jobfile})
 
 done

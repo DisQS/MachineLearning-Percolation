@@ -37,6 +37,8 @@ echo "--- working in directory=$directory"
 #python $codedir/perco_generate_plot.py $option $pklfile `basename $pklfile .pkl`.cor
 ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_plot.py 0 {} {}
 
+chmod -R g+w *.png
+
 #echo "--- finished in directory=  $directory"
 EOD
 

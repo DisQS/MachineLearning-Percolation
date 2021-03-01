@@ -5,11 +5,9 @@ size=${2:-10}
 option=${3:-0}
 cores=${4:-1}
 
-  
 codedir=`pwd`
 
 echo "PERCO: dir=" $dir ", size=" $size ", option=" $option ", cores=" $cores
-
 
 cd $dir
 cd "L"$size
@@ -22,7 +20,6 @@ cd $directory
 jobfile="corr-"$size-$directory".sh"
 
 #echo $jobfile
-
 
 cat > ${jobfile} << EOD
 #!/bin/bash
@@ -37,9 +34,15 @@ module load Anaconda3
 pwd
 echo "--- working in directory=$directory"
 
-
 #python $codedir/perco_generate_corr.py $option $pklfile `basename $pklfile .pkl`.cor
-ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_corr.py 0 {} {}
+
+if [ $option = 1 ]; then
+  ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_corr.py $option {} {}
+else
+  ls *.pkl| parallel -j1 -a - python $codedir/perco_generate_corr.py $option {} {}
+fi
+
+chmod -R g+w *
 
 echo "--- finished in directory=$directory"
 EOD
@@ -49,9 +52,9 @@ cat ${jobfile}
 chmod 755 ${jobfile}
 chmod g+w ${jobfile}
 #(sbatch -q devel ${jobfile})
-#(sbatch -q taskfarm ${jobfile})
+(sbatch -q taskfarm ${jobfile})
 #(sbatch ${jobfile})
-(./${jobfile})
+#(./${jobfile})
 
 cd ..
 done
