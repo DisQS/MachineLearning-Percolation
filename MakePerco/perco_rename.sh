@@ -34,9 +34,16 @@ if [ $option = 1 ]; then
   rename _a.png .apng *_a.png
   rename _b.png .bpng *_b.png
   rename _s.png .spng *_s.png
-else
+elif [ $option = 2 ]; then
   rename .png .npng *.png
+
+elif [ $option = 3 ]; then
+  rename .apng _a.png *.apng 
+  rename .bpng _b.png *.bpng 
+  rename .spng _s.png *.spng
+  rename .npng _n.png *.npng
 fi
+
 
 #chmod -R g+w *
 echo "--- finished in directory=$directory"
