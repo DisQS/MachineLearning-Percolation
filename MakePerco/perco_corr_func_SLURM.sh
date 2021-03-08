@@ -49,7 +49,7 @@ done
 if [ $option = 1 ]; then
   sort -R cor.lst | parallel -j$cores -a - python $codedir/perco_generate_corr.py $option {} {}
 else
-  sort -R cor.lst | parallel -j1 -a - python $codedir/perco_generate_corr.py $option {} {}
+  ls *.pkl | sort | parallel -j1 -a - python $codedir/perco_generate_corr.py $option {} {}
 fi
 
 chmod -R g+w *
