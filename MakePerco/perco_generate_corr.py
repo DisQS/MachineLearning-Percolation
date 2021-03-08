@@ -14,10 +14,10 @@ from math import sqrt
 def correlation_function_pbc(filename_data):
     filename, file_extension = os.path.splitext(filename_data) #split the basename from the extension
     if filename+'.cor' in os.listdir('.'):
-        print('--- perco_generate_corr():', filename, ' already exists --- skipping!')
+        print('--- perco_generate_corr():', filename, 'already exists --- skipping!')
         return
     else:
-        print('--- perco_generate_corr():', filename, ' is now being made!')
+        print('--- perco_generate_corr():', filename, 'is now being made!')
         # make an empty file to ensure the file exists already before the computation
         corr_value_zipped=np.zeros(10)
         header = '{0:^5s}   {1:^7s}   {2:^7s} {3:^5s}   {4:^7s} '.format('distance', 'Corr func','Corr func-proba largest','distance','Corr func largest')
@@ -133,7 +133,7 @@ def correlation_function_pbc(filename_data):
         print('end correlation function',end50)
 
         length=len(div_pbc)
-        print('test')
+        #print('test')
 
         #data processing
         sqrt_distance=[sqrt(square_distance[h]) for h in range(len(square_distance))] 
