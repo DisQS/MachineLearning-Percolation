@@ -36,10 +36,20 @@ echo "--- working in directory=$directory"
 
 #python $codedir/perco_generate_corr.py $option $pklfile `basename $pklfile .pkl`.cor
 
+rm -f cor.lst
+
+for pklfile in *.pkl 
+do
+    if [ ! -e \`basename \$pklfile .pkl\`.cor ]; then
+	echo \$pklfile "missing .cor file"
+	echo \$pklfile >> cor.lst
+    fi
+done
+
 if [ $option = 1 ]; then
-  ls *.pkl | sort -R | parallel -j$cores -a - python $codedir/perco_generate_corr.py $option {} {}
+  sort -R cor.lst | parallel -j$cores -a - python $codedir/perco_generate_corr.py $option {} {}
 else
-  ls *.pkl | sort -R | parallel -j1 -a - python $codedir/perco_generate_corr.py $option {} {}
+  sort -R cor.lst | parallel -j1 -a - python $codedir/perco_generate_corr.py $option {} {}
 fi
 
 chmod -R g+w *
