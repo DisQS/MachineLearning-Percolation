@@ -14,8 +14,16 @@ from math import sqrt
 def correlation_function_pbc(filename_data):
     filename, file_extension = os.path.splitext(filename_data) #split the basename from the extension
     if filename+'.cor' in os.listdir('.'):
+        print('--- perco_generate_corr():', filename, 'already exists --- skipping!')
         return
     else:
+        print('--- perco_generate_corr():', filename, 'is now being made!')
+        # make an empty file to ensure the file exists already before the computation
+        corr_value_zipped=np.zeros(10)
+        header = '{0:^5s}   {1:^7s}   {2:^7s} {3:^5s}   {4:^7s} '.format('distance', 'Corr func','Corr func-proba largest','distance','Corr func largest')
+        np.savetxt(filename+'.cor',np.zeros(10), header=header, fmt=['    %.7f  '])
+
+        # actual data generation
         data=pickle.load(open(filename_data,"rb")) 
         lattice=data['cluster_pbc_int'] #cluster_pbc_int
         #square_proba=data['square proba']
@@ -125,7 +133,7 @@ def correlation_function_pbc(filename_data):
         print('end correlation function',end50)
 
         length=len(div_pbc)
-        print('test')
+        #print('test')
 
         #data processing
         sqrt_distance=[sqrt(square_distance[h]) for h in range(len(square_distance))] 
@@ -168,6 +176,7 @@ def correlation_function_pbc(filename_data):
         correlation_value_largest=np.concatenate((correlation_value_largest[:index_max_largest+1],np.zeros(len_zero_largest)))
         corr_proba_largest=correlation_value-proba_largest 
 
+        # now prepare data the write into actual file
         corr_value_zipped=list(zip(new_distance,correlation_value, corr_proba_largest,new_distance_largest,correlation_value_largest))
         header = '{0:^5s}   {1:^7s}   {2:^7s} {3:^5s}   {4:^7s} '.format('distance', 'Corr func','Corr func-proba largest','distance','Corr func largest')
         np.savetxt(filename+'.cor',corr_value_zipped, header=header, fmt=['    %.7f  ','    %.7f  ','    %.7f  ','  %.7f','  %.7f'])

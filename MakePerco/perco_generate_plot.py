@@ -20,15 +20,15 @@ def plot_im_lattice(filename_pkl):
     size_sys_reg=re.findall(regex1,L_size)
     size=int(size_sys_reg[0])
 
-    if (filename+'.png' and filename+'_s.png' and filename+'_b.png' and filename+'_a.png')  in os.listdir('.'):
+    if (filename+'_n.png' and filename+'_s.png' and filename+'_b.png' and filename+'_a.png')  in os.listdir('.'):
         return
 
-    if filename+'.png' not in os.listdir('.'):
+    if filename+'_n.png' not in os.listdir('.'):
 
         fig=plt.figure()
         plt.axis('off')
         plt.imshow(cluster_pbc_norm,cmap='Greys')
-        plt.imsave(filename+'.png', cluster_pbc_norm,cmap='Greys')
+        plt.imsave(filename+'_n.png', cluster_pbc_norm,cmap='Greys')
         plt.close('all')
         
     if filename+'_s.png' not in os.listdir('.'): 
