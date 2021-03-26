@@ -5,6 +5,7 @@ import pickle
 import sys 
 import numpy as np
 from collections import Counter, OrderedDict
+from PIL import Image
 
 def plot_im_lattice(filename_pkl):
     
@@ -20,7 +21,7 @@ def plot_im_lattice(filename_pkl):
     size_sys_reg=re.findall(regex1,L_size)
     size=int(size_sys_reg[0])
 
-    if (filename+'_n.png' and filename+'_s.png' and filename+'_b.png' and filename+'_a.png')  in os.listdir('.'):
+    if (filename+'_n.png' and filename+'_s.png' and filename+'_b.png' and filename+'_a.png' and filename+'_bw.png')  in os.listdir('.'):
         return
 
     if filename+'_n.png' not in os.listdir('.'):
@@ -95,6 +96,19 @@ def plot_im_lattice(filename_pkl):
         plt.imshow(a_mapping,cmap='Greys')
         plt.imsave(filename+'_a.png', a_mapping,cmap='Greys')
         plt.close('all')
+
+
+
+
+    if filename+'_bw.png' not in os.listdir('.'):
+        cluster_bw=np.array([1 if x!=0 else x for x in cluster_pbc_int.flat]).reshape(size,size)
+        cluster_bw=np.where(cluster_bw==0,2,cluster_bw)
+        cluster_bw=np.where(cluster_bw==1,0,cluster_bw)
+        cluster_bw=np.where(cluster_bw==2,1,cluster_bw)
+        
+        data = (cluster_bw * 255).astype(np.uint8)
+        Image.fromarray(data).save(filename+'_bw.png')
+    
     return
     
 def plot_corr_funcs(filename_corr, filename_pkl): 
