@@ -8,6 +8,10 @@ perco_i=${3:-05927}
 perco_f=${4:-06000}
 dperco=${5:-02000}
 configs=${6:-2}
+hlines=${7:-1}
+hthick=${8:-1}
+vlines=${9:-1}
+vthick=${10:-1}
 
 codedir=`pwd`
 
@@ -17,8 +21,9 @@ echo "PERCO: dir=" $dir ", size=" $size \
 mkdir -p $dir
 cd $dir
 
-mkdir -p "L"$size"_cross"
-cd "L"$size"_cross"
+datadir="L"$size"_cross_h$hlines-$hthick_v$vlines-$vthick"
+mkdir -p $datadir
+cd $datadir
 
 for perco in $(seq $perco_i $dperco $perco_f) 
 do
@@ -36,15 +41,15 @@ cat > ${jobfile} << EOD
 #SBATCH --time=48:00:00
 
 module load Anaconda3
-module list
+#module list
 #conda init --all; conda activate
 
 pwd
 echo "--- working on p=$perco"
 echo "starting cmd:" $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs
 
-python --version
-echo -e "print(1+2)" | python
+#python --version
+#echo -e "print(1+2)" | python
 python $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs
 
 chmod -R g+w *

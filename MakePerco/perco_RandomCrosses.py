@@ -49,7 +49,7 @@ else:
 from libPerco import *
 
 ###############################################################################
-def percolation(im,p,size_sys,seed,max_thick,nb_hlines=1,nb_vlines=1):
+def percolation(im,p,size_sys,seed,thick,nb_hlines=1,nb_vlines=1):
 
     import pickle
 
@@ -139,7 +139,7 @@ def percolation(im,p,size_sys,seed,max_thick,nb_hlines=1,nb_vlines=1):
         thick_vlines=[]
         
         for hline in range(nb_hlines):
-            thline=3 #random.randint(1,max_thick)
+            thline=thick
             hline=random.randint(0,(size_sys-1)-(thline-1))
                         
             coord_hlines.append(hline)
@@ -147,75 +147,74 @@ def percolation(im,p,size_sys,seed,max_thick,nb_hlines=1,nb_vlines=1):
             
             
             #PBC -----------------------------------
-            print('PBC: len before h-line modification',len(cluster_pbc))
-            print('init',cluster_pbc)
-            print('hline',hline)
+            #print('PBC: len before h-line modification',len(cluster_pbc))
+            #print('init',cluster_pbc)
+            #print('hline',hline)
             temp_cluster_pbc=cluster_pbc
             for line in range(thline):
                 temp_cluster_pbc=np.delete(temp_cluster_pbc,hline,0)
-                print('temp_cluster_pbc',temp_cluster_pbc)
+                #print('temp_cluster_pbc',temp_cluster_pbc)
             row=np.zeros((thline,len(temp_cluster_pbc[0])), dtype='int')-1
 
-            print(len(row),row)
+            #print(len(row),row)
 
             cluster_blank_pbc=np.r_[temp_cluster_pbc[:hline,:],row,temp_cluster_pbc[hline:,:]]
             size_blank_pbc=len(cluster_blank_pbc)
-            print('cluster_blank_pbc',cluster_blank_pbc)
-            print('PBC: len after h-line modification, size_blank_pbc', size_blank_pbc)
+            #print('cluster_blank_pbc',cluster_blank_pbc)
+            #print('PBC: len after h-line modification, size_blank_pbc', size_blank_pbc)
             
             # HW -----------------------------------
-            print('HW: len before h-line modification',len(cluster))
-            print('init',cluster)
+            #print('HW: len before h-line modification',len(cluster))
+            #print('init',cluster)
             temp_cluster=cluster
             for line in range(thline):
                 temp_cluster=np.delete(temp_cluster,hline,0)
-                print('temp_cluster',temp_cluster)
-            print( len(temp_cluster))
-            print('row',len(row),row)
+                #print('temp_cluster',temp_cluster)
+            #print( len(temp_cluster))
+            #print('row',len(row),row)
             row=np.zeros((thline,len(temp_cluster[0])), dtype='int')-1
             cluster_blank=np.r_[temp_cluster[:hline,:],row,temp_cluster[hline:,:]]
             size_blank=len(cluster_blank)
-            print('cluster_blank',cluster_blank)
-            print('HW: len after h-line modification, size_blank_pbc', size_blank)
+            #print('cluster_blank',cluster_blank)
+            #print('HW: len after h-line modification, size_blank_pbc', size_blank)
             
         for vline in range(nb_vlines):
-            tvline=3#random.randint(1,max_thick)
+            tvline=thick
             vline=random.randint(0,(size_sys-1)-(tvline-1))
             
             coord_vlines.append(vline)
             thick_vlines.append(tvline)
             
-            print('vline',vline)
+            #print('vline',vline)
             # PBC -----------------------------------
-            print('PBC: len before v-line modification',len(cluster_pbc))
+            #print('PBC: len before v-line modification',len(cluster_pbc))
             
             temp_cluster_pbc=cluster_blank_pbc
-            print('init',temp_cluster_pbc)
+            #print('init',temp_cluster_pbc)
             for line in range(tvline):
                 temp_cluster_pbc=np.delete(temp_cluster_pbc,vline,1)
-                print('temp_cluster_pbc',temp_cluster_pbc)
+                #print('temp_cluster_pbc',temp_cluster_pbc)
             col=np.zeros((len(temp_cluster_pbc),thline), dtype='int')-1
             cluster_blank_pbc=np.c_[temp_cluster_pbc[:,:vline],col,temp_cluster_pbc[:,vline:]]
-            
 
-            print(len(row),row)
+            #print(len(row),row)
 
-            print('cluster_blank_pbc',cluster_blank_pbc)
+            #print('cluster_blank_pbc',cluster_blank_pbc)
             size_blank_pbc=len(cluster_blank_pbc)
-            print('PBC: len after v-line modification, size_blank_pbc', size_blank_pbc)
+            #print('PBC: len after v-line modification, size_blank_pbc', size_blank_pbc)
             
             # HW -----------------------------------
-            print('HW: len before v-line modification',len(cluster))
+            #print('HW: len before v-line modification',len(cluster))
             temp_cluster=cluster_blank
             for line in range(tvline):
                 temp_cluster=np.delete(temp_cluster,vline,1)
             
-            print( len(temp_cluster))
+            #print( len(temp_cluster))
             col=np.zeros((len(temp_cluster),thline), dtype='int')-1
             cluster_blank=np.c_[temp_cluster[:,:vline],col,temp_cluster[:,vline:]]
             
             size_blank=len(cluster_blank)
-            print('HW: len after v-line modification, size_blank_pbc', size_blank)
+            #print('HW: len after v-line modification, size_blank_pbc', size_blank)
         
 ############################################ For PBC
 #        print('before pbc',len(cluster_pbc))
@@ -247,20 +246,25 @@ def percolation(im,p,size_sys,seed,max_thick,nb_hlines=1,nb_vlines=1):
 #        size_blank=len(cluster_blank)
 #        print('size_blank', size_blank)
 ################################################
-        print('mapping',new_mapping)
-        cluster_blank_pbc_int= np.array([new_mapping_pbc[v]+1                             if not v == -1 else 0 for v in cluster_blank_pbc.flat]).reshape(size_sys,size_sys)
-        cluster_blank_pbc_norm = np.array([(new_mapping_pbc[v]+1)/n_clusters_pbc                             if not v == -1 else 0 for v in cluster_blank_pbc.flat]).reshape(size_sys,size_sys)
-        cluster_blank_pbc_nan= np.array([new_mapping_pbc[v]+1                             if not v == -1 else np.nan for v in cluster_blank_pbc.flat]).reshape(size_sys,size_sys)
-        
+        #print('mapping',new_mapping)
+        cluster_blank_pbc_int= np.array([new_mapping_pbc[v]+1 \
+                                         if not v == -1 else 0 for v in cluster_blank_pbc.flat]).reshape(size_sys,size_sys)
+        cluster_blank_pbc_norm = np.array([(new_mapping_pbc[v]+1)/n_clusters_pbc \
+                                           if not v == -1 else 0 for v in cluster_blank_pbc.flat]).reshape(size_sys,size_sys)
+        cluster_blank_pbc_nan= np.array([new_mapping_pbc[v]+1 \
+                                         if not v == -1 else np.nan for v in cluster_blank_pbc.flat]).reshape(size_sys,size_sys)      
         
         print("HW coloring", datetime.datetime.now())
         
-        cluster_blank_int= np.array([new_mapping[v]+1                             if not v == -1 else 0 for v in cluster_blank.flat]).reshape(size_sys,size_sys)
-        cluster_blank_norm = np.array([(new_mapping[v]+1)/n_clusters                             if not v == -1 else 0 for v in cluster_blank.flat]).reshape(size_sys,size_sys)
-        cluster_blank_nan = np.array([new_mapping[v]+1                           if not v == -1 else np.nan for v in cluster_blank.flat]).reshape(size_sys,size_sys)
+        cluster_blank_int= np.array([new_mapping[v]+1 \
+                                     if not v == -1 else 0 for v in cluster_blank.flat]).reshape(size_sys,size_sys)
+        cluster_blank_norm = np.array([(new_mapping[v]+1)/n_clusters \
+                                       if not v == -1 else 0 for v in cluster_blank.flat]).reshape(size_sys,size_sys)
+        cluster_blank_nan = np.array([new_mapping[v]+1 \
+                                      if not v == -1 else np.nan for v in cluster_blank.flat]).reshape(size_sys,size_sys)
 
-        p1=len(list(zip(*cluster_blank_int.nonzero())))
-        print(p1)
+        p1=len(list(zip(*cluster_blank_int.nonzero()))) / (size_sys**2)
+        print("density change p=",p,"->",p1)
         
         all_sizes_pbc = Counter(list(sizes_pbc.values()))
         
@@ -302,7 +306,8 @@ def percolation(im,p,size_sys,seed,max_thick,nb_hlines=1,nb_vlines=1):
          
         
             
-        filename0='pc_0_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__pi'+str(p)+'__pm'+str(p1)+'_L'+str(size_sys)+'_s'+str(seed)+                        '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
+        filename0='pc_0_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__pi'+str(p)+'__pm'+str(p1)+'_L'+str(size_sys)+'_s'+str(seed)+ \
+            '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
 
 
         text_file0=open(filename0+'.txt', "w+")
@@ -398,11 +403,12 @@ if ( len(sys.argv) == 6 ):
     perco_final = int(sys.argv[3])
     perco_inc = int(sys.argv[4])
     number_configs = int(sys.argv[5])
+
     
     print("perco_RandomCrosses:", lattice_size, perco_init,perco_final,perco_inc, number_configs)
     perco_list=[val/10000 for val in range(perco_init,perco_final+1,perco_inc)]
-    print(range(perco_init,perco_final+1,perco_inc))
-    print(perco_list)
+    #print(range(perco_init,perco_final+1,perco_inc))
+    #print(perco_list)
     
     # %%
     percolation_density(number_configs,perco_list,lattice_size) 
