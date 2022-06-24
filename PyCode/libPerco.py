@@ -16,13 +16,14 @@ def check_name(path):
     seeds=[]
    
     for files in os.listdir(path):
-        if files.endswith('info.txt'):
+        if files.endswith('.txt'):
             results.append(files)
-            seed_sys=files.split('_')[9]      
+            seed_sys=files.split('_')[11]      
             regex3 = re.compile('\d+')
             seed_sys_reg=re.findall(regex3,seed_sys)
             seeds.append(int(seed_sys_reg[0]))
-    
+            
+				    
     nbre_files=len(results)
     if len(seeds)>0:
         max_seed=max(seeds)

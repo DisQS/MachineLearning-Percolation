@@ -2,6 +2,12 @@
 # coding: utf-8
 
 # ###############################################################################
+# protocolling line
+# ###############################################################################
+
+print("START of perco_RandomCrosses.py code")
+
+# ###############################################################################
 # global libraries
 # ###############################################################################
 import numpy as np
@@ -296,7 +302,7 @@ def percolation(im,p,size_sys,seed,max_thick,nb_hlines=1,nb_vlines=1):
          
         
             
-        filename0='pc_0_0_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__pi'+str(p)+'__pm'+str(p1)+'_L'+str(size_sys)+'_s'+str(seed)+                        '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
+        filename0='pc_0_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__pi'+str(p)+'__pm'+str(p1)+'_L'+str(size_sys)+'_s'+str(seed)+                        '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
 
 
         text_file0=open(filename0+'.txt', "w+")
@@ -344,7 +350,7 @@ def percolation_density(number_configs,perco_list,lattice_size):
     configs_wanted=number_configs
     #seed=int(binascii.hexlify(os.urandom(4)),16)
     for p in perco_list:
-        print('percolation_density: workin on p=', p)
+        print('percolation_density: working on p=', p)
 
         configs_created=0
         
@@ -386,28 +392,30 @@ def percolation_density(number_configs,perco_list,lattice_size):
 
 ####################################################################################################################
 if ( len(sys.argv) == 6 ):
-    SEED = int(sys.argv[1])
+    #SEED = int(sys.argv[1])
     lattice_size = int(sys.argv[1])
     perco_init = int(sys.argv[2]) 
     perco_final = int(sys.argv[3])
     perco_inc = int(sys.argv[4])
     number_configs = int(sys.argv[5])
-
-    perco_list=[val/10000 for val in range(1000,4000+1,1000)]
-            
+    
+    print("perco_RandomCrosses:", lattice_size, perco_init,perco_final,perco_inc, number_configs)
+    perco_list=[val/10000 for val in range(perco_init,perco_final+1,perco_inc)]
+    print(range(perco_init,perco_final+1,perco_inc))
+    print(perco_list)
+    
     # %%
-    percolation_density(2,perco_list,10) 
+    percolation_density(number_configs,perco_list,lattice_size) 
     #1: number of images for a given p
     #2:list of p
     #3: side length of the square lattice
     #4: seed 
-
- else:
-     print ('Number of', len(sys.argv), \
-            'arguments is less than expected (6) --- ABORTING!')
-     print ('Usage: python '+sys.argv[0],\
-            '  size p_initial*10000 p_final*10000 dp*10000 number_of_configurations')
-     #print ('Argument List:', str(sys.argv))        
-
-
-
+    
+else:
+    print ('Number of', len(sys.argv), \
+           'arguments is less than expected (6) --- ABORTING!')
+    print ('Usage: python '+sys.argv[0],\
+           '  size p_initial*10000 p_final*10000 dp*10000 number_of_configurations')
+    #print ('Argument List:', str(sys.argv))        
+    #return
+    

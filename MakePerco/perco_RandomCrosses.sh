@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dir=${1:-../data}   
+dir=${1:-../Data}  
 
 #seed=${2:-1234567}
 size=${2:-10}
@@ -8,15 +8,15 @@ perco_i=${3:-05927}
 perco_f=${4:-06000}
 dperco=${5:-02000}
 configs=${6:-2}
-py=${7:RandomCrosses.py}
 
 codedir=`pwd`
 
 echo "PERCO: dir=" $dir ", size=" $size \
-", [Ti,Tf,dT]= [" $perco_i, $perco_f, $dperco "], configs=" $configs",py_code="$py
+", [Ti,Tf,dT]= [" $perco_i, $perco_f, $dperco "], configs=" $configs", py_code=" $pyfile
 
 mkdir -p $dir
 cd $dir
+
 mkdir -p "L"$size"_cross"
 cd "L"$size"_cross"
 
@@ -25,7 +25,7 @@ do
 
 echo "--- making jobfile for p=" $perco
 
-jobfile=`printf "$perco.sh"`
+jobfile=`printf "mlp-$size-$perco.sh"`
 echo $jobfile
 
 cat > ${jobfile} << EOD
@@ -36,12 +36,16 @@ cat > ${jobfile} << EOD
 #SBATCH --time=48:00:00
 
 module load Anaconda3
+module list
 #conda init --all; conda activate
 
 pwd
 echo "--- working on p=$perco"
+echo "starting cmd:" $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs
 
-python $codedir/perco_generate_data_with_cross.py $size $perco $perco 1 $configs
+python --version
+echo -e "print(1+2)" | python
+python $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs
 
 chmod -R g+w *
 
