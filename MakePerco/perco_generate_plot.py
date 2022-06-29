@@ -16,13 +16,24 @@ def plot_im_lattice(filename_pkl):
     
     filename, file_extension = os.path.splitext(filename_pkl)
 
-    L_size=filename.split('_')[8]      
+    L_size=filename.split('_')[11]   
+    print(L_size)   
     regex1 = re.compile('\d+')
     size_sys_reg=re.findall(regex1,L_size)
     size=int(size_sys_reg[0])
 
     if (filename+'_n.png' and filename+'_s.png' and filename+'_b.png' and filename+'_a.png' and filename+'_bw.png')  in os.listdir('.'):
         return
+
+
+    if filename+'_bw.png' not in os.listdir('.'):
+        cluster_bw=np.array([1 if x!=0 else x for x in cluster_pbc_int.flat]).reshape(size,size)
+        cluster_bw=np.where(cluster_bw==0,2,cluster_bw)
+        cluster_bw=np.where(cluster_bw==1,0,cluster_bw)
+        cluster_bw=np.where(cluster_bw==2,1,cluster_bw)
+        
+        data = (cluster_bw * 255).astype(np.uint8)
+        Image.fromarray(data).save(filename+'_bw.png')
 
     if filename+'_n.png' not in os.listdir('.'):
 
@@ -59,6 +70,7 @@ def plot_im_lattice(filename_pkl):
         plt.imshow(reshuffle_largest,cmap='Greys')
         plt.imsave(filename+'_b.png', reshuffle_largest,cmap='Greys')
         plt.close('all') 
+    
 
     if filename+'_a.png' not in os.listdir('.'):
         # reshuffle greys according to cluster size with largest cluster BLACK
@@ -100,14 +112,7 @@ def plot_im_lattice(filename_pkl):
 
 
 
-    if filename+'_bw.png' not in os.listdir('.'):
-        cluster_bw=np.array([1 if x!=0 else x for x in cluster_pbc_int.flat]).reshape(size,size)
-        cluster_bw=np.where(cluster_bw==0,2,cluster_bw)
-        cluster_bw=np.where(cluster_bw==1,0,cluster_bw)
-        cluster_bw=np.where(cluster_bw==2,1,cluster_bw)
-        
-        data = (cluster_bw * 255).astype(np.uint8)
-        Image.fromarray(data).save(filename+'_bw.png')
+    
     
     return
     

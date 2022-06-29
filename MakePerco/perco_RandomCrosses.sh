@@ -7,11 +7,16 @@ size=${2:-10}
 perco_i=${3:-05927}
 perco_f=${4:-06000}
 dperco=${5:-02000}
-configs=${6:-2}
-hlines=${7:-1}
-hthick=${8:-1}
-vlines=${9:-1}
-vthick=${10:-1}
+configs=${6:-1}
+hlines=${7:-0}
+hthick=${8:-0}
+vlines=${9:-0}
+vthick=${10:-0}
+updlines=${11:-0}
+updthick=${12:-0}
+downdlines=${13:-0}
+downdthick=${14:-0}
+typemod=${15:-1}
 
 codedir=`pwd`
 
@@ -46,11 +51,11 @@ module load Anaconda3
 
 pwd
 echo "--- working on p=$perco"
-echo "starting cmd:" $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs
+echo "starting cmd:" $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs $hlines $hthick $vlines $vthick $updlines $updthick $downdlines $downdthick $typemod
 
 #python --version
 #echo -e "print(1+2)" | python
-python $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs
+python $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs $hlines $hthick $vlines $vthick $updlines $updthick $downdlines $downdthick $typemod
 
 chmod -R g+w *
 

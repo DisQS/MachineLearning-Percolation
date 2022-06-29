@@ -29,6 +29,9 @@ cat > ${jobfile} << EOD
 #SBATCH --time=48:00:00
 
 module load Anaconda3
+module load GCCcore/8.3.0
+module load parallel/20190922
+
 #conda init --all; conda activate
 
 pwd
