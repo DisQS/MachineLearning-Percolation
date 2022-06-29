@@ -12,11 +12,18 @@ hlines=${7:-0}
 hthick=${8:-0}
 vlines=${9:-0}
 vthick=${10:-0}
-updlines=${11:-0}
-updthick=${12:-0}
-downdlines=${13:-0}
-downdthick=${14:-0}
+ulines=${11:-0}
+uthick=${12:-0}
+dlines=${13:-0}
+dthick=${14:-0}
 typemod=${15:-1}
+
+if [ $typemod -ge 0 ]
+then
+    typechar="L"
+else
+    typechar="A"
+fi
 
 codedir=`pwd`
 
@@ -26,7 +33,9 @@ echo "PERCO: dir=" $dir ", size=" $size \
 mkdir -p $dir
 cd $dir
 
-datadir="L"$size"_cross_h$hlines-$hthick_v$vlines-$vthick"
+datadir="L"$size"_h"$hlines"-"$hthick"_v"$vlines"-"$vthick"-u"$ulines"-"$uthick"_d"$dlines"-"$dthick"_"$typechar
+
+echo $datadir
 mkdir -p $datadir
 cd $datadir
 
@@ -51,18 +60,18 @@ module load Anaconda3
 
 pwd
 echo "--- working on p=$perco"
-echo "starting cmd:" $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs $hlines $hthick $vlines $vthick $updlines $updthick $downdlines $downdthick $typemod
+echo "starting cmd:" $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs $hlines $hthick $vlines $vthick $ulines $uthick $dlines $dthick $typemod
 
 #python --version
 #echo -e "print(1+2)" | python
-python $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs $hlines $hthick $vlines $vthick $updlines $updthick $downdlines $downdthick $typemod
+python $codedir/perco_RandomCrosses.py $size $perco $perco 1 $configs $hlines $hthick $vlines $vthick $ulines $uthick $dlines $dthick $typemod
 
 chmod -R g+w *
 
 echo "--- finished with p=$perco"
 EOD
 
-cat ${jobfile}
+#cat ${jobfile}
 
 chmod 755 ${jobfile}
 chmod g+w ${jobfile}
