@@ -9,6 +9,7 @@ import binascii
 import sys
 import time 
 import datetime
+import copy
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -123,7 +124,7 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
         print('n clusters',n_clusters)
         
         # here starts the cross
-        
+        print('init cluster',cluster)
         coord_hlines=[]
         thick_hlines=[]
         coord_vlines=[]
@@ -132,10 +133,10 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
         up_thick_dlines=[]
         down_coord_dlines=[]
         down_thick_dlines=[]
-        temp_cluster_pbc=cluster_pbc #np.zeros((size_sys,size_sys))
-        temp_cluster=cluster
+        temp_cluster_pbc=copy.copy(cluster_pbc) #np.zeros((size_sys,size_sys))
+        temp_cluster=copy.copy(cluster)
         if typemod>=0:
-            mod=1
+            mod=0
         if typemod<0:
             mod=-1
         #print('#################################################')
@@ -313,7 +314,8 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
         top_bot_inter=set(x for x in cluster_nan[0][:]).intersection(set(y for y in cluster_nan[-1][:]))
         sides_inter=set(w for w in cluster_nan[:,0]).intersection(set(z for z in cluster_nan[:,-1]))
         
-        
+        print('inter top',top_bot_inter,'inter side',sides_inter)
+        print('cluster_nan',cluster_nan)
         HWTB=0
         HWLR=0
         PBCTB=0
@@ -324,11 +326,11 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
         size_top_side_spanning_pbc=0
         rgba1=0
         rgba2=0
-         
+        init_span=0
         if (top_bot_inter!=set() or sides_inter!=set()):
-            
-            top_pbc=set(x for x in cluster_pbc_nan[0][:]).intersection(set(y for y in cluster_pbc_nan[-1][:]))
-            side_pbc=set(w for w in cluster_pbc_nan[:,0]).intersection(set(z for z in cluster_pbc_nan[:,-1]))
+            init_span=1
+            top_pbc=set(x for x in cluster_blank_pbc_nan[0][:]).intersection(set(y for y in cluster_blank_pbc_nan[-1][:]))
+            side_pbc=set(w for w in cluster_blank_pbc_nan[:,0]).intersection(set(z for z in cluster_blank_pbc_nan[:,-1]))
             
             union_top_side_spanning_pbc= side_pbc.union(top_pbc)
             
@@ -351,71 +353,47 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
                 HWLR=1
                 PBCLR=pbc_percolation(sides_inter,left,right,PBCLR)
 
- 
+        else:
+            pass
+
+        top_bot_inter_mod=set(x for x in cluster_blank_nan[0][:]).intersection(set(y for y in cluster_blank_nan[-1][:]))
+        side_inter_mod=set(w for w in cluster_blank_nan[:,0]).intersection(set(z for z in cluster_blank_nan[:,-1]))
+        if (top_bot_inter_mod!=set() or side_inter_mod!=set()):
+            span_mod=1
+        else:
+            span_mod=0
+
    
-            filename1='pc_0_1_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__pi'+str(p)+'__pm'+str(p1)+'_L'+str(size_sys)+'_s'+str(seed)+ \
+        filename='pc_'+str(span_mod)+'_'+str(init_span)+'_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__pi'+str(p)+'__pm'+str(p1)+'_L'+str(size_sys)+'_s'+str(seed)+ \
                 '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
 
                 
                 
-            text_file1=open(filename1+'.txt', "w+")
-            text_file1.write('Total number of cluster= '+ repr(n_clusters)+'\n')
-            text_file1.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size_pbc)+'\n')
-            text_file1.write('Number of clusters with given size= ' +repr(sizes)+"\n")
-            text_file1.close()
-            data_pkl1 = {'cluster_pbc_int' : cluster_blank_pbc_int ,
-                       'cluster_pbc_norm' : cluster_blank_pbc_norm,
-                       'n_clusters_pbc':n_clusters_pbc,
-                       'cluster_int':cluster_blank_int,
-                       'cluster_norm':cluster_blank_norm,
-                       'proba largest' : proba_largest,
-                       'square proba':square_proba,
-                       'size max cluster':max_size_pbc,
-                       'pi':p,
-                       'pf':p1,
-                       'nb_vlines':nb_vlines,
-                       'nb_hlines':nb_hlines,
-                       'coord_hlines':coord_hlines,
-                       'thick_hlines':thick_hlines,
-                       'coord_vlines':coord_vlines,
-                       'thick_vlines':thick_vlines}
+        text_file=open(filename+'.txt', "w+")
+        text_file.write('Total number of cluster= '+ repr(n_clusters)+'\n')
+        text_file.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size_pbc)+'\n')
+        text_file.write('Number of clusters with given size= ' +repr(sizes)+"\n")
+        text_file.close()
+        data_pkl = {'cluster_pbc_int' : cluster_blank_pbc_int ,
+                    'cluster_pbc_norm' : cluster_blank_pbc_norm,
+                    'n_clusters_pbc':n_clusters_pbc,
+                    'cluster_int':cluster_blank_int,
+                    'cluster_norm':cluster_blank_norm,
+                    'proba largest' : proba_largest,
+                    'square proba':square_proba,
+                    'size max cluster':max_size_pbc,
+                    'pi':p,
+                    'pf':p1,
+                    'nb_vlines':nb_vlines,
+                    'nb_hlines':nb_hlines,
+                    'coord_hlines':coord_hlines,
+                    'thick_hlines':thick_hlines,
+                    'coord_vlines':coord_vlines,
+                    'thick_vlines':thick_vlines}
             
-            pkl_file1=open(filename1+'.pkl', "wb")
-            pickle.dump(data_pkl1 ,pkl_file1)
-            pkl_file1.close()
-            
-        
-        else:    
-            filename0='pc_0_0_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__pi'+str(p)+'__pm'+str(p1)+'_L'+str(size_sys)+'_s'+str(seed)+ \
-                '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
-
-
-            text_file0=open(filename0+'.txt', "w+")
-            text_file0.write('Total number of cluster= '+ repr(n_clusters_pbc)+'\n')
-            text_file0.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size_pbc)+'\n')
-            text_file0.write('Sizes of each clusters (number associated to the cluster: number of occupied sites)= ' +repr(sizes)+"\n")
-            text_file0.close()
-
-            data_pkl0 = {'cluster_pbc_int' : cluster_blank_pbc_int ,
-                       'cluster_pbc_norm' : cluster_blank_pbc_norm,
-                       'n_clusters_pbc':n_clusters_pbc,
-                       'cluster_int':cluster_blank_int,
-                       'cluster_norm':cluster_blank_norm,
-                       'proba largest' : proba_largest,
-                       'square proba':square_proba,
-                       'size max cluster':max_size_pbc,
-                       'pi':p,
-                       'pf':p1,
-                       'nb_vlines':nb_vlines,
-                       'nb_hlines':nb_hlines,
-                       'coord_hlines':coord_hlines,
-                       'thick_hlines':thick_hlines,
-                       'coord_vlines':coord_vlines,
-                       'thick_vlines':thick_vlines}
-            
-            pkl_file0=open(filename0+'.pkl', "wb")
-            pickle.dump(data_pkl0 ,pkl_file0)
-            pkl_file0.close()
+        pkl_file=open(filename+'.pkl', "wb")
+        pickle.dump(data_pkl ,pkl_file)
+        pkl_file.close()
             
         end2=time.time()-start2
         print(end2)
