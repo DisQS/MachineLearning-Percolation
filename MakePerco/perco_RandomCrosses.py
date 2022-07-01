@@ -124,7 +124,7 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
         print('n clusters',n_clusters)
         
         # here starts the cross
-        print('init cluster',cluster)
+        #print('init cluster',cluster)
         coord_hlines=[]
         thick_hlines=[]
         coord_vlines=[]
@@ -148,7 +148,6 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
                         
             coord_hlines.append(hline)
             thick_hlines.append(thline)
-            
             
             #PBC -----------------------------------
             #print('PBC: len before h-line modification',len(cluster_pbc))
@@ -185,8 +184,6 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
                 temp_cluster[:,vline+line]=[mod]*len(temp_cluster)
                 #print('temp pbc',temp_cluster_pbc)
                 #print('temp hw',temp_cluster)
-            
-       
         
         for up_dline in range(nb_updlines):
             up_tdline=updthick
@@ -225,13 +222,7 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
             
 #             #HW -----------------------------------
 #             print('HW: len before v-line modification',len(cluster))
-            
-            
-            
-            
-            
-            
-            
+                        
 #             print('HW: len after v-line modification, size_blank_pbc', size_blank)
         
 ############################################ For PBC
@@ -314,8 +305,8 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
         top_bot_inter=set(x for x in cluster_nan[0][:]).intersection(set(y for y in cluster_nan[-1][:]))
         sides_inter=set(w for w in cluster_nan[:,0]).intersection(set(z for z in cluster_nan[:,-1]))
         
-        print('inter top',top_bot_inter,'inter side',sides_inter)
-        print('cluster_nan',cluster_nan)
+        #print('inter top',top_bot_inter,'inter side',sides_inter)
+        #print('cluster_nan',cluster_nan)
         HWTB=0
         HWLR=0
         PBCTB=0
