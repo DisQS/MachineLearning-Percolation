@@ -55,7 +55,7 @@ def lattice_config(size,seed,p):
     j=size//2
     i=0
     lattice[i,j]=1
-    while occupied < number_occupied and i<(size-1):
+    while occupied < np.round_(number_occupied) and i<(size-1):
         #print(lattice)
         proba=random.randint(0,1)
         #print('j',j)
@@ -87,10 +87,10 @@ def lattice_config(size,seed,p):
     print('###################################################################')
     print('lattice after random path',lattice)
     #print('occ',occupied)   
-    if int(occupied)< number_occupied:
+    if np.round_(occupied)< np.round_(number_occupied):
         i=0
         j=0
-        while int(occupied)< number_occupied:
+        while np.round_(occupied)< np.round_(number_occupied):
             i=random.randint(0,size-1)
             j=random.randint(0,size-1)
             if lattice[i,j]==0:
@@ -330,6 +330,9 @@ def percolation(im,p,size_sys,seed):
 
         
         occupied = lattice_para[0].nonzero()
+        nb_occupied=len(list(zip(*lattice_para[0].nonzero())))
+        expected=p*size_sys*size_sys
+        print('nb_occupied',nb_occupied,'expected',expected)
         n_clusters_pbc = 0
         n_clusters = 0
         cluster_pbc=np.zeros((size_sys,size_sys), dtype=int)-1

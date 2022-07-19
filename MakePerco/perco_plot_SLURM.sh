@@ -2,12 +2,13 @@
 
 dir=${1:-../data}
 #size=${2:-10}
-option=${3:-0}
-cores=${4:-1}
+option=${2:-0}
+cores=${3:-1}
+py=${4:-perco_generate_plot.py}
   
 codedir=`pwd`
 
-echo "PERCO: dir=" $dir ", size=" $size ", option=" $option ", cores=" $cores
+echo "PERCO: dir=" $dir ", size=" $size ", option=" $option ", cores=" $cores",py=" $py
 
 cd $dir
 #cd "L"$size
@@ -38,7 +39,7 @@ pwd
 echo "--- working in directory=$directory"
 
 #python $codedir/perco_generate_plot.py $option $pklfile `basename $pklfile .pkl`.cor
-ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_plot.py 0 {} {}
+ls *.pkl| parallel -j$cores -a - python $codedir/$py 0 {} {}
 
 chmod -R g+w *.png
 
