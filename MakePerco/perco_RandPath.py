@@ -84,8 +84,8 @@ def lattice_config(size,seed,p):
             i+=1
             proba=0
     occupied=len(list(zip(*lattice.nonzero())))
-    #print('###################################################################')
-    #print('lattice after random path',lattice)
+    print('###################################################################')
+    print('lattice after random path',lattice)
     #print('occ',occupied)   
     if int(occupied)< number_occupied:
         i=0
@@ -97,9 +97,9 @@ def lattice_config(size,seed,p):
                 lattice[i,j]=1
                 occupied+=1
     occupied_2=len(list(zip(*lattice.nonzero())))
-    #print('occ1',occupied_2)
+    print('occ1',occupied_2)
     print("lattice_config END", datetime.datetime.now())
-    #print('lattice after random path+add',lattice)
+    print('lattice after random path+add',lattice)
     return lattice, occupied_2
 
 ###############################################################################       
@@ -493,7 +493,7 @@ def percolation(im,p,size_sys,seed):
                         '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
 
                 
-                
+            print(filename1)  
             text_file1=open(filename1+'.txt', "w+")
             text_file1.write('Total number of cluster= '+ repr(n_clusters)+'\n')
             text_file1.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size_pbc)+'\n')
@@ -521,7 +521,7 @@ def percolation(im,p,size_sys,seed):
                         '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
           
             
-
+            print(filename0)   
             text_file0=open(filename0+'.txt', "w+")
             text_file0.write('Total number of cluster= '+ repr(n_clusters_pbc)+'\n')
             text_file0.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size_pbc)+'\n')
@@ -601,6 +601,7 @@ def percolation_density(number_configs,perco_list,lattice_size):
     total_time=end1-start1
     print("Images generated in : ", total_time, "seconds")
     return 
+
 ####################################################################################################################
 if ( len(sys.argv) == 6 ):
     #SEED = 101
