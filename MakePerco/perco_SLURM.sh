@@ -53,7 +53,7 @@ chmod 755 ${jobfile}
 chmod g+w ${jobfile}
 #(sbatch -q devel ${jobfile})
 #(sbatch -q taskfarm ${jobfile})
-#(sbatch ${jobfile})
-(./${jobfile})
+(sbatch ${jobfile})
+#(./${jobfile})
 
 done

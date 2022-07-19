@@ -1,7 +1,7 @@
 #!/bin/bash
 
 dir=${1:-../data}
-size=${2:-10}
+#size=${2:-10}
 option=${3:-0}
 cores=${4:-1}
   
@@ -10,7 +10,7 @@ codedir=`pwd`
 echo "PERCO: dir=" $dir ", size=" $size ", option=" $option ", cores=" $cores
 
 cd $dir
-cd "L"$size
+#cd "L"$size
 
 for directory in p0*
 do
