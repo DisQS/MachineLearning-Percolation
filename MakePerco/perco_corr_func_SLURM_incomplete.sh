@@ -31,32 +31,52 @@ cat > ${jobfile} << EOD
 #SBATCH --cpus-per-task=24
 #SBATCH --mem-per-cpu=3700
 
-module restore TorchGPU_1_7_1
+module restore new_TorchGPU_1_7_1
+
 #conda init --all; conda activate
 
 pwd
-echo "--- working in directory=$directory"
-
-#nbpkl=\`ls -lR ./*.pkl | wc -l\`
-#nbcor=\`ls -lR ./*.cor | wc -l\`
-#echo \$nbpkl \$nbcor
+echo "--- working in directory=$directory ---"
 
 rm -f missing_cor.lst
-for corfile in \*.cor
+
+corcount=0
+miscount=0
+for pklfile in *.pkl
 do 
-    #echo \$corfile
+    count=\$((\$count + 1))
+    echo -ne \$count \$miscount'\r'
+
+    corfile=\`basename \$pklfile .pkl\`.cor
+    echo \$corfile
     if [ \$(cat \$corfile | wc -l) -lt 1032 ]; then
-        #echo "in the loop" 
+        echo \$corfile
+	miscount=\$((\$miscount + 1)) 
         echo \$corfile>> missing_cor.lst
-        echo "--- MISSING:" \$corfile
+    fi
+done
+filename='missing_cor.lst'
+echo "read missing_cor file"
+
+
+file=\$(cat missing_cor.lst)
+
+for line in \$(cat missing_cor.lst)
+do
+    if [ "\${line: -15}" == "_incomplete.cor"} ]; then
+        echo "\$line already modified"
+    else
+        echo "\$line now being renamed"
+        mv "\$line" "\${line/.cor/_incomplete.cor}"
     fi
 done
 
-#if [ $option = 2 ]
-    #sort -n missing_cor.lst | parallel -j1 -a - python $codedir/perco_generate_corr.py $option {} {}
-#fi
-#echo $nbpkl 
-#echo "fin"
+echo "work on corr"
+for line in \$(cat missing_cor.lst)
+do
+python $codedir/perco_generate_corr.py $option \$line \$line
+done
+echo "end corr"
 
 echo "--- finished in directory=$directory"
 
