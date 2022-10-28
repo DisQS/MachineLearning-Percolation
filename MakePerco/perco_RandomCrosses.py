@@ -274,19 +274,17 @@ def percolation(im,p,size_sys,seed,nb_hlines,hthick,nb_vlines,vthick,nb_updlines
             top_pbc=set(x for x in cluster_blank_pbc_nan[0][:]).intersection(set(y for y in cluster_blank_pbc_nan[-1][:]))
             side_pbc=set(w for w in cluster_blank_pbc_nan[:,0]).intersection(set(z for z in cluster_blank_pbc_nan[:,-1]))            
             union_top_side_spanning_pbc= side_pbc.union(top_pbc)
-                        
-            if top_bot_inter!=0 and sides_inter!=0:
+            print('top_bot_inter',top_bot_inter,'sides_inter',sides_inter)
+            if top_bot_inter!=set():
+                print(top_bot_inter)
                 HWTB=1
-                HWLR=1
+                print('HWTB',HWTB)
                 PBCTB=pbc_percolation(top_bot_inter,top,bottom,PBCTB)
-                PBCLR=pbc_percolation(sides_inter,left,right,PBCLR)                
- 
-            elif top_bot_inter!=0:
-                HWTB=1
-                PBCTB=pbc_percolation(top_bot_inter,top,bottom,PBCTB)
-  
-            else:
+                
+            if sides_inter!=set():
+                print(sides_inter)
                 HWLR=1
+                print('HWLR',HWLR)
                 PBCLR=pbc_percolation(sides_inter,left,right,PBCLR)
         else:
             pass

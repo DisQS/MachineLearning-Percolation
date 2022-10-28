@@ -17,7 +17,7 @@ def check_name(path):
     seeds=[]
    
     for files in os.listdir(path):
-        if files.endswith('info.txt'):
+        if files.endswith('.txt'):
             results.append(files)
             seed_sys=files.split('_')[9]      
             regex3 = re.compile('\d+')
@@ -85,7 +85,7 @@ def lattice_config(size,seed,p):
             proba=0
     occupied=len(list(zip(*lattice.nonzero())))
     print('###################################################################')
-    print('lattice after random path',lattice)
+    #print('lattice after random path',lattice)
     #print('occ',occupied)   
     if np.round_(occupied)< np.round_(number_occupied):
         i=0
@@ -311,7 +311,6 @@ def correlation_l(distance_to_site,Correlation_func, size_sys,proba_largest,p):
     
 ###############################################################################
 def percolation(im,p,size_sys,seed):
-
     import pickle
 
     # the seed has alreayd been checked to see if it's ok
@@ -371,35 +370,20 @@ def percolation(im,p,size_sys,seed):
         correspondance_pbc=sorted(k_pbc, key = lambda t: t[0])
         unzip_pbc=list(zip(*correspondance_pbc))
         new_mapping_pbc=unzip_pbc[1]
-        
-        
         print("HW characterization", datetime.datetime.now())
-        
         order=OrderedDict(sizes.most_common())
                   
         classification=list(order)
-        
-        
         numbers = np.arange(0,n_clusters)
         weight=-np.sort(-(numbers))
         k=list(zip(classification,weight))
         
         correspondance=sorted(k, key = lambda t: t[0])
-        unzip=list(zip(*correspondance))
-        
+        unzip=list(zip(*correspondance)) 
         new_mapping=unzip[1]
-
-        
-        
         print("PBC coloring", datetime.datetime.now())
-        
-        
         print('n clusters pbc',n_clusters_pbc)
         print('n clusters',n_clusters)
-        
-        
-        
-        
         cluster_pbc_int= np.array([new_mapping_pbc[v]+1 \
                             if not v == -1 else 0 for v in cluster_pbc.flat]).reshape(size_sys,size_sys)
         cluster_pbc_norm = np.array([(new_mapping_pbc[v]+1)/n_clusters_pbc \
@@ -416,9 +400,6 @@ def percolation(im,p,size_sys,seed):
                             if not v == -1 else 0 for v in cluster.flat]).reshape(size_sys,size_sys)
         cluster_nan = np.array([new_mapping[v]+1\
                            if not v == -1 else np.nan for v in cluster.flat]).reshape(size_sys,size_sys)
-
-        
-        
         all_sizes_pbc = Counter(list(sizes_pbc.values()))
         
         #get size of largest cluster
@@ -428,22 +409,10 @@ def percolation(im,p,size_sys,seed):
         occ=len(list(zip(*cluster_int.nonzero())))
         start4=time.time()
         proba_largest=(max_size_pbc/(size_sys**2))**2
-
         square_proba=p*p
-
-       
         print('max clus', max_size_pbc)
-        
-        
- 
         end4=time.time()-start4
-
-        
-        
-            
         occ=len(list(zip(*cluster_int.nonzero())))
-
-        
         top=cluster_nan[0][:]
         bottom=cluster_nan[-1][:]
         left=cluster_nan[:,0]
@@ -451,13 +420,10 @@ def percolation(im,p,size_sys,seed):
        
         top_bot_inter=set(x for x in cluster_nan[0][:]).intersection(set(y for y in cluster_nan[-1][:]))
         sides_inter=set(w for w in cluster_nan[:,0]).intersection(set(z for z in cluster_nan[:,-1]))
-        
-        
         HWTB=0
         HWLR=0
         PBCTB=0
         PBCLR=0
-        
         size_side_spanning_pbc=0
         size_top_spanning_pbc=0
         size_top_side_spanning_pbc=0
@@ -465,33 +431,21 @@ def percolation(im,p,size_sys,seed):
         rgba2=0
          
         if (top_bot_inter!=set() or sides_inter!=set()):
-            
             top_pbc=set(x for x in cluster_pbc_nan[0][:]).intersection(set(y for y in cluster_pbc_nan[-1][:]))
             side_pbc=set(w for w in cluster_pbc_nan[:,0]).intersection(set(z for z in cluster_pbc_nan[:,-1]))
-            
             union_top_side_spanning_pbc= side_pbc.union(top_pbc)
-            
-            
-            if top_bot_inter!=0 and sides_inter!=0:
+            print('top_bot_inter',top_bot_inter,'sides_inter',sides_inter)
+            if top_bot_inter!=set():
+                print(top_bot_inter)
                 HWTB=1
-                HWLR=1
+                print('HWTB',HWTB)
                 PBCTB=pbc_percolation(top_bot_inter,top,bottom,PBCTB)
-               
                 
-                PBCLR=pbc_percolation(sides_inter,left,right,PBCLR)
-                
- 
-            elif top_bot_inter!=0:
-                HWTB=1
-                PBCTB=pbc_percolation(top_bot_inter,top,bottom,PBCTB)
-
-  
-            else:
+            if sides_inter!=set():
+                print(sides_inter)
                 HWLR=1
+                print('HWLR',HWLR)
                 PBCLR=pbc_percolation(sides_inter,left,right,PBCLR)
-
- 
-   
             filename1='pc_1_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__p'+str(p)+'_L'+str(size_sys)+'_s'+str(seed)+\
                         '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
 
@@ -502,8 +456,6 @@ def percolation(im,p,size_sys,seed):
             text_file1.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size_pbc)+'\n')
             text_file1.write('Number of clusters with given size= ' +repr(sizes)+"\n")
             text_file1.close()
-
-            
             data_pkl1 = {'cluster_pbc_int' : cluster_pbc_int ,
                        'cluster_pbc_norm' : cluster_pbc_norm,
                        'n_clusters_pbc':n_clusters_pbc,
@@ -516,23 +468,15 @@ def percolation(im,p,size_sys,seed):
             pkl_file1= open(filename1+'.pkl', "wb")
             pickle.dump(data_pkl1,pkl_file1)
             pkl_file1.close()
-
-
-        else:
-            
+        else:            
             filename0='pc_0_'+str(HWTB)+'_'+str(HWLR)+'_'+str(PBCTB)+'_'+str(PBCLR)+'__p'+str(p)+'_L'+str(size_sys)+'_s'+str(seed)+\
                         '_nc'+str(n_clusters_pbc)+'_smc'+str(max_size_pbc)+'_n'+str(n_clusters_pbc)
-          
-            
             print(filename0)   
             text_file0=open(filename0+'.txt', "w+")
             text_file0.write('Total number of cluster= '+ repr(n_clusters_pbc)+'\n')
             text_file0.write('Size of the largest cluster (number of site occupied)= '+ repr(max_size_pbc)+'\n')
             text_file0.write('Sizes of each clusters (number associated to the cluster: number of occupied sites)= ' +repr(sizes)+"\n")
             text_file0.close()
-            
-            
-            
             data_pkl0 = {'cluster_pbc_int' : cluster_pbc_int ,
                        'cluster_pbc_norm' : cluster_pbc_norm,
                        'n_clusters_pbc':n_clusters_pbc,
@@ -548,7 +492,6 @@ def percolation(im,p,size_sys,seed):
             
         end2=time.time()-start2
         print(end2)
-
     return cluster,n_clusters,cluster_pbc,n_clusters_pbc, sizes_pbc,lattice_para[0],new_mapping,order,order_pbc,occ,\
 sizes,cluster_int, top_bot_inter,sides_inter,cluster_nan
 

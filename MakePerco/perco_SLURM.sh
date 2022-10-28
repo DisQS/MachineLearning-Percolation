@@ -34,7 +34,7 @@ cat > ${jobfile} << EOD
 #SBATCH --mem-per-cpu=2012
 #SBATCH --time=48:00:00
 
-module load Anaconda3
+module restore new_TorchGPU_1_7_1
 #conda init --all; conda activate
 
 pwd
@@ -53,7 +53,7 @@ chmod 755 ${jobfile}
 chmod g+w ${jobfile}
 #(sbatch -q devel ${jobfile})
 #(sbatch -q taskfarm ${jobfile})
-(sbatch ${jobfile})
-#(./${jobfile})
+#(sbatch ${jobfile})
+(./${jobfile})
 
 done

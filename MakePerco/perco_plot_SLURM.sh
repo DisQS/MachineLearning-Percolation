@@ -29,7 +29,7 @@ cat > ${jobfile} << EOD
 #SBATCH --mem-per-cpu=2012
 #SBATCH --time=48:00:00
 
-module load Anaconda3
+module load Anaconda3/2019.03
 module load GCCcore/8.3.0
 module load parallel/20190922
 
@@ -41,7 +41,7 @@ echo "--- working in directory=$directory"
 #python $codedir/perco_generate_plot.py $option $pklfile `basename $pklfile .pkl`.cor
 ls *.pkl| parallel -j$cores -a - python $codedir/$py 0 {} {}
 
-chmod -R g+w *.png
+chmod -R g+w *.pdf
 
 #echo "--- finished in directory=  $directory"
 EOD

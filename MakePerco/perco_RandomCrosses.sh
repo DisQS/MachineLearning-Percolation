@@ -54,7 +54,7 @@ cat > ${jobfile} << EOD
 #SBATCH --mem-per-cpu=2012
 #SBATCH --time=48:00:00
 
-module load Anaconda3
+module restore new_TorchGPU_1_7_1
 #module list
 #conda init --all; conda activate
 

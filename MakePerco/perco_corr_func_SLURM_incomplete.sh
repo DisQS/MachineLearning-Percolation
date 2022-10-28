@@ -31,7 +31,7 @@ cat > ${jobfile} << EOD
 #SBATCH --cpus-per-task=24
 #SBATCH --mem-per-cpu=3700
 
-module restore new_TorchGPU_1_7_1
+module restore TorchGPU_1_7_1
 
 #conda init --all; conda activate
 
@@ -63,11 +63,11 @@ file=\$(cat missing_cor.lst)
 
 for line in \$(cat missing_cor.lst)
 do
-    if [ "\${line: -15}" == "_incomplete.cor"} ]; then
+    if [ "\${line: -6}" == ".incor"} ]; then
         echo "\$line already modified"
     else
         echo "\$line now being renamed"
-        mv "\$line" "\${line/.cor/_incomplete.cor}"
+        mv "\$line" "\${line/.cor/.incor}"
     fi
 done
 

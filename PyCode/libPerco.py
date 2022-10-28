@@ -18,7 +18,7 @@ def check_name(path):
     for files in os.listdir(path):
         if files.endswith('.txt'):
             results.append(files)
-            seed_sys=files.split('_')[11]      
+            seed_sys=files.split('_')[12]      
             regex3 = re.compile('\d+')
             seed_sys_reg=re.findall(regex3,seed_sys)
             seeds.append(int(seed_sys_reg[0]))
