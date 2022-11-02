@@ -156,25 +156,23 @@ def train_model(model,train,val,device,criterion, optimizer, num_epochs, schedul
         #print(accuracy)
         #print(val_loss)
         #print(val_accuracy)
-        if time.time()-init>=32400:
-            model.load_state_dict(best_model_wts)
-            train_data=list(zip(epochs,_loss,accuracy,val_loss,val_accuracy))
-            #print(train_data)
-            header = '{0:^5s}   {1:^7s}   {2:^5s}   {3:^8s}   {4:^7s}'.format('epochs', 'loss', \
-            'accuracy', 'val loss',   'val accuracy')
-            filename=savepath+method+'_'+dataname+'accuracy_loss'+'.txt'
-            np.savetxt(filename, train_data, header=header, fmt=['    %d  ','  %.7f','  %.7f','  %.7f','     %.7f'])
-    
-            torch.save({'train epoch': epochs,
-            'model_state_dict': model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'train acc': accuracy,
-            'val acc' : val_accuracy,
-            'train loss': _loss,
-            'val loss' : val_loss,
-            'cm':cm}, modelpath+'_epochs_'+str(epoch)+'.pth')
-            init=time.time()
-            print('saved')
+        model.load_state_dict(best_model_wts)
+        train_data=list(zip(epochs,_loss,accuracy,val_loss,val_accuracy))
+        #print(train_data)
+        header = '{0:^5s}   {1:^7s}   {2:^5s}   {3:^8s}   {4:^7s}'.format('epochs', 'loss', \
+        'accuracy', 'val loss',   'val accuracy')
+        filename=savepath+method+'_'+dataname+'accuracy_loss'+'.txt'
+        np.savetxt(filename, train_data, header=header, fmt=['    %d  ','  %.7f','  %.7f','  %.7f','     %.7f'])
+        torch.save({'train epoch': epochs,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'train acc': accuracy,
+        'val acc' : val_accuracy,
+        'train loss': _loss,
+        'val loss' : val_loss,
+        'cm':cm}, modelpath+'_epochs_'+str(epoch)+'.pth')
+        init=time.time()
+        print('saved')
     torch.save({'train epoch': epochs,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
