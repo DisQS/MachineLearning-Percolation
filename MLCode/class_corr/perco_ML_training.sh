@@ -10,6 +10,7 @@ validation_split= 0.1
 batch_size=256
 num_epochs= 20
 
+echo "Version:" `git describe --tags --long` echo "Branch:" `git branch --show-current`
 
 codedir=`pwd`
 
