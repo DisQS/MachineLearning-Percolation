@@ -25,10 +25,35 @@ sys.path.insert(0, '/home/physics/phsht/Projects/ML-Percolation') # RAR
 from MLtools import *
 import sklearn
 import re
+#############################################################################################
+#print(sys.argv)
+if ( len(sys.argv) == 7 ):
+    #SEED = 101
+    SEED = int(sys.argv[1])
+    my_size= int(sys.argv[2])
+    my_size_samp=int(sys.argv[3])
+    my_validation_split= float(sys.argv[4])
+    my_batch_size=int(sys.argv[5])
+    my_num_epochs= int(sys.argv[6])
+
+else:
+    print ('Number of', len(sys.argv), \
+           'arguments is less than expected (2) --- ABORTING!')
+print('--> defining parameters')
+    
+myseed=SEED
+size= my_size
+nimages= 100
+size_samp=my_size_samp
+validation_split= my_validation_split
+batch_size=my_batch_size
+num_epochs= my_num_epochs
+training_set=0
+validation_set=0
 
 # everyone
 myDATAPATH='../../Data/'
-myCSV='../../Data_csv/'
+myCSV='../../Data_csv/data_pkl_'+str(size)+'_'+str(size_samp)+'.csv'
 
 #############################################################################################
 def classification_prediction(dataloader,size,model,whole_dataset):
@@ -132,30 +157,7 @@ def density_as_func_proba_density(csv_file,size_samp=10000):
     return p_list,pred_1_1,pred_1_0,pred_0_1,pred_0_0
 #######################################################################################################
 #print('######################')
-#print(sys.argv)
-if ( len(sys.argv) == 7 ):
-    #SEED = 101
-    SEED = int(sys.argv[1])
-    my_size= int(sys.argv[2])
-    my_size_samp=int(sys.argv[3])
-    my_validation_split= float(sys.argv[4])
-    my_batch_size=int(sys.argv[5])
-    my_num_epochs= int(sys.argv[6])
 
-else:
-    print ('Number of', len(sys.argv), \
-           'arguments is less than expected (2) --- ABORTING!')
-print('--> defining parameters')
-    
-myseed=SEED
-size= my_size
-nimages= 100
-size_samp=my_size_samp
-validation_split= my_validation_split
-batch_size=my_batch_size
-num_epochs= my_num_epochs
-training_set=0
-validation_set=0
 print('--> defining files and directories')
 dataname='Perco-data-bw-very-hres-density-L'+str(size)+'-'+str(nimages)+'-s'+str(img_sizeX)+'_'+str(size_samp)+'_s'+str(myseed)
 datapath='../L'+str(100) 
@@ -203,7 +205,7 @@ if torch.cuda.is_available():
 print('chosen device: ',device)
 print('--> reading CSV data')
 print(os.getcwd())
-whole_dataset = Dataset_csv_pkl(csv_file=myCSV+'data_pkl_'+str(size)+'_5000.csv',root_dir=myDATAPATH+'L'+str(size)'/',
+whole_dataset = Dataset_csv_pkl(csv_file=myCSV,root_dir=myDATAPATH+'L'+str(size)'/',
 size=size,classe_type='density',array_type='bw',
 data_type='pkl',transform=transforms.ToTensor())
 print('--> defining/reading DATA')
