@@ -1,16 +1,17 @@
 #!/bin/bash
 
 dir=${1:-../data}
-size=${2:-10}
-option=${3:-0}
-cores=${4:-1}
+#size=${2:-10}
+option=${2:-0}
+cores=${3:-1}
+py=${4:-perco_generate_plot.py}
   
 codedir=`pwd`
 
-echo "PERCO: dir=" $dir ", size=" $size ", option=" $option ", cores=" $cores
+echo "PERCO: dir=" $dir ", size=" $size ", option=" $option ", cores=" $cores",py=" $py
 
 cd $dir
-cd "L"$size
+#cd "L"$size
 
 for directory in p0*
 do
@@ -28,16 +29,19 @@ cat > ${jobfile} << EOD
 #SBATCH --mem-per-cpu=2012
 #SBATCH --time=48:00:00
 
-module load Anaconda3
+module load Anaconda3/2019.03
+module load GCCcore/8.3.0
+module load parallel/20190922
+
 #conda init --all; conda activate
 
 pwd
 echo "--- working in directory=$directory"
 
 #python $codedir/perco_generate_plot.py $option $pklfile `basename $pklfile .pkl`.cor
-ls *.pkl| parallel -j$cores -a - python $codedir/perco_generate_plot.py 0 {} {}
+ls *.pkl| parallel -j$cores -a - python $codedir/$py 0 {} {}
 
-chmod -R g+w *.png
+chmod -R g+w *.pdf
 
 #echo "--- finished in directory=  $directory"
 EOD

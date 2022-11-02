@@ -10,52 +10,54 @@ from PIL import Image
 def plot_im_lattice(filename_pkl):
     
     data=pickle.load(open(filename_pkl,"rb"))
-    cluster_pbc_norm=data['cluster_pbc_norm']
-    cluster_pbc_int=data['cluster_pbc_int']
+    cluster_norm=data['cluster_norm']
+    cluster_int=data['cluster_int']
     n_clusters=data['n_clusters_pbc']
     
     filename, file_extension = os.path.splitext(filename_pkl)
 
-    L_size=filename.split('_')[11]   
+    L_size=filename.split('_')[8]   
     #print(L_size)   
     regex1 = re.compile('\d+')
     size_sys_reg=re.findall(regex1,L_size)
     size=int(size_sys_reg[0])
 
-    if (filename+'_n.png' and filename+'_s.png' and filename+'_b.png' and filename+'_a.png' and filename+'_bw.png')  in os.listdir('.'):
+    print('n_cluster',n_clusters)
+    print('###############################################################')
+    if (filename+'_n.pdf' and filename+'_s.pdf' and filename+'_b.pdf' and filename+'_a.pdf' and filename+'_bw.pdf')  in os.listdir('.'):
         return
 
 
-    if filename+'_bw.png' not in os.listdir('.'):
-        cluster_bw=np.array([1 if x!=0 else x for x in cluster_pbc_int.flat]).reshape(size,size)
+    if filename+'_bw.pdf' not in os.listdir('.'):
+        cluster_bw=np.array([1 if x!=0 else x for x in cluster_int.flat]).reshape(size,size)
         cluster_bw=np.where(cluster_bw==0,2,cluster_bw)
         cluster_bw=np.where(cluster_bw==1,0,cluster_bw)
         cluster_bw=np.where(cluster_bw==2,1,cluster_bw)
         
         data = (cluster_bw * 255).astype(np.uint8)
-        Image.fromarray(data).save(filename+'_bw.png')
+        Image.fromarray(data).save(filename+'_bw.pdf')
 
-    if filename+'_n.png' not in os.listdir('.'):
+    if filename+'_n.pdf' not in os.listdir('.'):
 
         fig=plt.figure()
         plt.axis('off')
-        plt.imshow(cluster_pbc_norm,cmap='Greys')
-        plt.imsave(filename+'_n.png', cluster_pbc_norm,cmap='Greys')
+        plt.imshow(cluster_norm,cmap='Greys')
+        plt.imsave(filename+'_n.pdf', cluster_norm,cmap='Greys')
         plt.close('all')
         
-    if filename+'_s.png' not in os.listdir('.'): 
+    if filename+'_s.pdf' not in os.listdir('.'): 
         # reshuffle greys random 
         new_mapping = np.arange(1,n_clusters+1)
         np.random.shuffle(new_mapping)
         reshuffle= np.array([new_mapping[v-1]/n_clusters \
-                            if not v == 0 else 0 for v in cluster_pbc_int.flat]).reshape(size,size)
+                            if not v == 0 else 0 for v in cluster_int.flat]).reshape(size,size)
         fig=plt.figure()
         plt.axis('off')
         plt.imshow(reshuffle,cmap='Greys')
-        plt.imsave(filename+'_s.png',reshuffle,cmap='Greys')
+        plt.imsave(filename+'_s.pdf',reshuffle,cmap='Greys')
         plt.close('all')
 
-    if filename+'_b.png' not in os.listdir('.'):
+    if filename+'_b.pdf' not in os.listdir('.'):
         # reshuffle greys random with largest cluster BLACK
         new_mapping_largest = np.arange(1,n_clusters)
         #print('OLD UNcomplete',new_mapping_largest, 'n_clusters=',n_clusters)
@@ -64,20 +66,20 @@ def plot_im_lattice(filename_pkl):
         new_mapping_largest=np.append(new_mapping_largest,[n_clusters])
         #print('new complete',new_mapping_largest)
         reshuffle_largest= np.array([new_mapping_largest[v-1]/n_clusters \
-                                     if not (v == 0)  else 0 for v in cluster_pbc_int.flat]).reshape(size,size)
+                                     if not (v == 0)  else 0 for v in cluster_int.flat]).reshape(size,size)
         fig=plt.figure()
         plt.axis('off')
         plt.imshow(reshuffle_largest,cmap='Greys')
-        plt.imsave(filename+'_b.png', reshuffle_largest,cmap='Greys')
+        plt.imsave(filename+'_b.pdf', reshuffle_largest,cmap='Greys')
         plt.close('all') 
     
 
-    #if filename+'_a.png' not in os.listdir('.'):
+    #if filename+'_a.pdf' not in os.listdir('.'):
     #    # reshuffle greys according to cluster size with largest cluster BLACK
     #    ratio={}
     #    occ_num=[]
     #    inc=0
-    #    num_clus, number_sites = np.unique(cluster_pbc_int, return_counts=True)
+    #    num_clus, number_sites = np.unique(cluster_int, return_counts=True)
     #    original_map=dict(zip(num_clus, number_sites))
     #    counter=Counter(original_map.values())
         
@@ -102,12 +104,12 @@ def plot_im_lattice(filename_pkl):
     #        else:
     #            new_mapping_values[value]=mapping_values[value]
     #            a_mapping= np.array([new_mapping_values[v]/n_clusters \
-    #                        if not v == 0 else 0 for v in cluster_pbc_int.flat]).reshape(size,size)
+    #                        if not v == 0 else 0 for v in cluster_int.flat]).reshape(size,size)
     #            print('new_mapping',new_mapping_values,'value',value,new_mapping_values)
     #    fig=plt.figure()
     #    plt.axis('off')
     #    plt.imshow(a_mapping,cmap='Greys')
-    #    plt.imsave(filename+'_a.png', a_mapping,cmap='Greys')
+    #    plt.imsave(filename+'_a.pdf', a_mapping,cmap='Greys')
     #    plt.close('all')
 
 
@@ -124,7 +126,7 @@ def plot_corr_funcs(filename_corr, filename_pkl):
     proba_largest=data['proba largest']
 
     filename, file_extension = os.path.splitext(filename_corr)
-    if filename+'_im_lattice.png' in os.listdir('.'):
+    if filename+'_im_lattice.pdf' in os.listdir('.'):
         return
     else:
         L_size=filename.split('_')[8]      
@@ -145,7 +147,7 @@ def plot_corr_funcs(filename_corr, filename_pkl):
         plt.xlabel('distance r')
         plt.ylabel('correlation function g(r)')
         plt.title('Correlation function for system '+str(size_sys)+' at density '+str(p))
-        plt.savefig(filename+'.png')
+        plt.savefig(filename+'.pdf')
         plt.close('all')
     
         plt.plot(corr_data[0],corr_data[1],label='g(r) every clusters')
@@ -155,7 +157,7 @@ def plot_corr_funcs(filename_corr, filename_pkl):
         plt.xlabel('distance r')
         plt.ylabel('correlation function g(r)')
         plt.title('Correlation function (log scale) for system '+str(size_sys)+' at density '+str(p))
-        plt.savefig(filename+'log'+'.png')
+        plt.savefig(filename+'log'+'.pdf')
         plt.close('all')
         return
 #############################################################
