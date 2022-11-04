@@ -2,13 +2,13 @@
 
 dir=${1:-../data}
 seed=${2:-12345684}
-py=${3=AM-Train-Pytorch-Perco_pk_dens_12345684.py}
+py=${3=Train-Pytorch-class_cor.py}
 flag=${4:-0}
-size= 100
+size=100
 size_samp=10000
-validation_split= 0.1
+validation_split=0.1
 batch_size=256
-num_epochs= 20
+num_epochs=20
 
 
 codedir=`pwd`
@@ -40,7 +40,6 @@ module restore TorchGPU_1_7_1
 
 pwd
 echo "--- working in directory=$seed"
-
 
 python $codedir/$py $seed $size $size_samp $validation_split $batch_size $num_epochs $flag
 

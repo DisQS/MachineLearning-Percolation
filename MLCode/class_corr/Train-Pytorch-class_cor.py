@@ -25,122 +25,8 @@ sys.path.insert(0, '/home/physics/phsht/Projects/ML-Percolation') # RAR
 from MLtools import *
 import sklearn
 import re
-
-# everyone
-myDATAPATH='../../Data/'
-myCSV='../../Data_csv/'
-
 #############################################################################################
-def classification_prediction(dataloader,size,model):
-    was_training = model.training
-    model.eval()
-    list_paths=[]
-    list_labels=[]
-    list_preds=[]
-    list_p=[]
-    model=model.to('cpu')
-    header_l=['path','density','true label','prediction']
-    class_to_idx=whole_dataset.class_to_idx
-    idx_to_class={v: k for k, v in class_to_idx.items()}
-    with torch.no_grad():
-        for i, (inputs,labels,paths) in enumerate(dataloader):
-            
-            inputs=inputs.to('cpu')
-            labels=labels.to('cpu')
-            #inputs=inputs.float()
-            labels.numpy()
-            
-            predictions = model(inputs) #value of the output neurons
-            _, pred= torch.max(predictions,1)
-           
-            for j in range(inputs.size()[0]):
-                p_occ=paths[j].split('_')[7]      
-                regex2 = re.compile('\d+\.\d+')
-                p_reg=re.findall(regex2,p_occ)
-                p=float(p_reg[0])
-               # paths_pred=[paths[j],p,labels[j].item(),pred[j].numpy()]
-                temp_paths=paths[j]
-                temp_p=p
-                temp_labels=labels[j].item()
-                temp_preds=pred[j].numpy()
-                temp_preds=int(temp_preds)
-                temp_labels=int(temp_labels)
-                real_pred=idx_to_class[temp_preds]
-                real_label=idx_to_class[temp_labels]
-                list_paths.append(temp_paths)
-                list_p.append(temp_p)
-                list_labels.append(real_label)
-                list_preds.append(real_pred)
-
-    dict = {'path':list_paths,'density':list_p,'label':list_labels,'prediction':list_preds} 
-
-    df = pd.DataFrame(dict)
-    df.to_csv(savepath+'predictions_class_corr_bw_v_h_res_'+str(size)+'_'+str(myseed)+'_val_idx.csv',index=False)
-        
-    return
-
-###################################
-def density_as_func_proba_corr(csv_file,size_samp=10000):
-    data=pd.read_csv(csv_file)
-    density=data['density'].unique()
-    density.sort()
-    p_list=[]
-    pred_1_1=[]
-    pred_1_0=[]
-    pred_0_1=[]
-    pred_0_0=[]
-    div_1_1=[]
-    div_1_0=[]
-    div_0_1=[]
-    div_0_0=[]
-    ml_Samp=[]
-    data_train=pd.read_csv('../../Data_csv/real_proportions_corr_non_corr_in_train_dataset_55_62_'+str(size)+'.csv')
-    
-    class_percoSamp=data_train['density'].unique()
-    len_percoSamp=len(class_percoSamp)
-    percoSamp=[size_samp]*len_percoSamp
-    percoNS=data_train['non_spanning']
-    percoS=data_train['spanning']
-    
-    
-    for p in density:
-        
-        new_df = data[data['density']==p]
-        nb_p=new_df['density'].count()
-        new_df_1=new_df[new_df['true label']==1]
-        new_df_0=new_df[new_df['true label']==0]
-        new_df_1_1=new_df_1[new_df_1['prediction']==1]
-        new_df_1_0=new_df_1[new_df_1['prediction']==0]
-        new_df_0_1=new_df_0[new_df_0['prediction']==1]
-        new_df_0_0=new_df_0[new_df_0['prediction']==0]
-        nb_p_1_1=new_df_1_1['density'].count()
-        nb_p_1_0=new_df_1_0['density'].count()
-        nb_p_0_1=new_df_0_1['density'].count()
-        nb_p_0_0=new_df_0_0['density'].count()
-
-
-        div_1_1=nb_p_1_1#/nb_p
-        div_1_0=nb_p_1_0#/nb_p
-        div_0_1=nb_p_0_1#/nb_p
-        div_0_0=nb_p_0_0#/nb_p
-        p_list.append(p)
-        pred_1_1.append(div_1_1)
-        pred_1_0.append(div_1_0)
-        pred_0_1.append(div_0_1)
-        pred_0_0.append(div_0_0)
-        ml_Samp.append(nb_p)
-
-    dict = {'density': p_list,'percoSamp':percoSamp,'percoNS':percoNS,'percoS':percoS,'mlSamp':ml_Samp,'SpS': pred_1_1, 'SpNS': pred_1_0,'NSpS': pred_0_1,'NSpNS': pred_0_0} 
-
-    df = pd.DataFrame(dict)
-    df.to_csv(savepath+'class_corr_bw_v_h_res_proba_'+str(size)+'_'+str(size_samp)+'_'+str(myseed)+'.csv',index=False)
-   
-
-    return p_list,pred_1_1,pred_1_0,pred_0_1,pred_0_0
-#######################################################################################################
-#print('######################')
-#print(sys.argv)
-if ( len(sys.argv) == 7 ):
+if ( len(sys.argv) == 8 ):
     #SEED = 101
     SEED = int(sys.argv[1])
     my_size= int(sys.argv[2])
@@ -148,7 +34,7 @@ if ( len(sys.argv) == 7 ):
     my_validation_split= float(sys.argv[4])
     my_batch_size=int(sys.argv[5])
     my_num_epochs= int(sys.argv[6])
-
+    flag=int(sys.argv[7])
 else:
     print ('Number of', len(sys.argv), \
            'arguments is less than expected (2) --- ABORTING!')
@@ -163,10 +49,13 @@ validation_split= my_validation_split
 batch_size=my_batch_size
 num_epochs= my_num_epochs
 
-print('--> defining files and directories')
+# everyone
+myDATAPATH='../../Data/'
+myCSV='../../Data_csv/data_pkl_'+str(size)+'_'+str(size_samp)+'.csv'
 
+print('--> defining files and directories')
 dataname='Perco-data-bw-very-hres-corr-L'+str(size)+'-'+str(nimages)+'-s'+str(size)+'_'+str(size_samp)+'_s'+str(myseed)
-datapath='../L100' 
+datapath='../L'+str(size)+'' 
     
 print(dataname,"\n",datapath)
 method='PyTorch-resnet18-pretrained-'+str(myseed)+'-e'+str(num_epochs)+'-bs'+str(batch_size)+'-s'+str(myseed)
@@ -186,6 +75,8 @@ historypath = savepath+historyname
 cm_path=savepath+method+'_'+dataname+'cm_val.txt'
 print(savepath,modelpath,historypath)
 
+
+#######################################################################################################
 print('--> defining seeds')
 
 torch.manual_seed(myseed+1)
@@ -218,8 +109,8 @@ print(os.getcwd())
 
 print('--> reading CSV data')
 
-whole_dataset = Dataset_csv_pkl(csv_file=myCSV+'data_pkl_100_10000.csv',
-                                root_dir=myDATAPATH+'L100/',size=100, classe_type='corr',
+whole_dataset = Dataset_csv_pkl(csv_file=myCSV,
+                                root_dir=myDATAPATH+'L'+str(size)+'/',size=size, classe_type='corr',
                                 array_type='bw',data_type='pkl',transform=transforms.ToTensor())
 
 print('--> defining/reading DATA')
@@ -314,34 +205,38 @@ if torch.cuda.is_available():
 #the model is sent to the GPU
 #model=model.to(device)
 model=model.double()
+if flag==0:
+    print('--> starting training epochs')
+    print('number of epochs',num_epochs )
+    print('batch_size',batch_size )
+    print('number of classes',number_classes )
 
-print('--> starting training epochs')
-
-print('number of epochs',num_epochs )
-print('batch_size',batch_size )
-print('number of classes',number_classes )
-
-base_model = train_model(
-    model,train,val,
-    device, 
-    criterion,optimizer,
-    num_epochs,exp_lr_scheduler,savepath, 
-    method,dataname,modelname,modelpath,
-    batch_size,class_names)
+    base_model = train_model(
+        model,train,val,
+        device, 
+        criterion,optimizer,
+        num_epochs,exp_lr_scheduler,savepath, 
+        method,dataname,modelname,modelpath,
+        batch_size,class_names)
+else:
+    print('--> loading saved model')
+    checkpoint=torch.load(modelpath+'.pth')
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    val_loss=checkpoint['val loss']
+    accuracy=checkpoint['train acc']
+    _loss=checkpoint['train loss']
+    val_accuracy=checkpoint['val acc']
+    val_loss=checkpoint['val loss']
+    epochs=checkpoint['train epoch']
+    model.eval()
 
 print('--> computing/saving confusion matrices')
-
 cm=simple_confusion_matrix(model,val,device,number_classes,class_names)
 np.savetxt(cm_path,cm,fmt='%d')
 
 print('--> computing/saving classification outputs')
-
-classification_prediction_bis(val,100,model)
-
-csv_file=savepath+'predictions_class_corr_bw_v_h_res_'+str(size)+'_'+str(size_samp)+'_'+str(myseed)+'_val.csv'
-#density_as_func_proba_corr(csv_file,10000)
-classification_prediction(val,100,model)
-
+classification_prediction_cor(val,size,model,myseed,nb_classes=number_classes,data_type='val')
 print('--> finished!')
 
 

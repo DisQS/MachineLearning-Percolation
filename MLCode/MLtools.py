@@ -12,6 +12,7 @@ import csv
 import pickle
 import time
 import os
+import re
 #from ray import tune
 #from ray.tune import CLIReporter
 #from ray.tune.schedulers import ASHAScheduler
@@ -703,7 +704,6 @@ class former_Dataset_csv_pkl(torch.utils.data.Dataset):
         paths=sample['path']
         return data, labels,paths
 ##########################################################################################
-
 class MyImageFolder2(torchvision.datasets.ImageFolder):
     """Custom dataset that includes image file paths. Extends
     torchvision.datasets.ImageFolder
@@ -1055,7 +1055,6 @@ class Dataset_csv_pkl_reg(torch.utils.data.Dataset):
         return data, labels,paths
         
 ###########################################################################################
-
 def raw_file_loader(width,input):
     functions=loadtext(input,comments="#", delimiter="n", unpack=False)
     functions=functions.reshape(width,width,width)
@@ -1544,8 +1543,24 @@ def ResNet101(data_channel=3, num_classes=1000):
 
 def ResNet152(data_channel=3, num_classes=1000):
     return ResNet(block, [3, 8, 36, 3], data_channel, num_classes)
-
-
+##########################################################################################
+class Resnet18_regression(nn.Module):
+    def __init__(self,resnet18_model):
+        super(Resnet18_regression, self).__init__()
+        self.resnet18_model=resnet18_model
+        num_ftrs = self.resnet18_model.fc.out_features
+        self.new_layers=nn.Sequential(nn.ReLU(),
+                                      nn.Linear(num_ftrs,256),
+                                      nn.ReLU(),
+                                      nn.Linear(256,64),
+                                      nn.ReLU(),
+                                      nn.Linear(64,1))
+        
+    def forward(self,x):
+        x=self.resnet18_model(x)
+        x=self.new_layers(x)
+        return x
+        
 ##########################################################################################
 def imshow(inp, title=None):
     # torch convention gives [channel, height,width] but imshow gives [height,width,channel] hence the transpose
@@ -1658,9 +1673,7 @@ def visualize_model_misclassified(model,chosen_set,device,class_names, num_image
                         return 
         
         model.train(mode=was_training)      
-        
-        
-        
+       
 ##########################################################################################        
 
 def analysis(model,chosen_set,device,number_classes,class_names,savepath, method,dataname):
@@ -1785,3 +1798,223 @@ def confusion_matrix_seaborn(cm,target,savepath, method,dataname):
 
     plt.savefig(savepath+method+'_'+dataname+'.pdf')
     return
+######################################################################################################
+def classification_prediction_cor(dataloader,size,model,seed,nb_classes=31,data_type='val'):
+    was_training = model.training
+    model.eval()
+    list_paths=[]
+    list_labels=[]
+    list_preds=[]
+    list_p=[]
+    model=model.to('cpu')
+    header_l=['path','density','true label','prediction']
+    class_to_idx=whole_dataset.class_to_idx
+    idx_to_class={v: k for k, v in class_to_idx.items()}
+    with torch.no_grad():
+        for i, (inputs,labels,paths) in enumerate(dataloader):            
+            inputs=inputs.to('cpu')
+            labels=labels.to('cpu')
+            #inputs=inputs.float()
+            labels.numpy()            
+            predictions = model(inputs) #value of the output neurons
+            _, pred= torch.max(predictions,1)           
+            for j in range(inputs.size()[0]):
+                p_occ=paths[j].split('_')[7]      
+                regex2 = re.compile('\d+\.\d+')
+                p_reg=re.findall(regex2,p_occ)
+                p=float(p_reg[0])
+               # paths_pred=[paths[j],p,labels[j].item(),pred[j].numpy()]
+                temp_paths=paths[j]
+                temp_p=p
+                temp_labels=labels[j].item()
+                temp_preds=pred[j].numpy()
+                temp_preds=int(temp_preds)
+                temp_labels=int(temp_labels)
+                real_pred=idx_to_class[temp_preds]
+                real_label=idx_to_class[temp_labels]
+                list_paths.append(temp_paths)
+                list_p.append(temp_p)
+                list_labels.append(real_label)
+                list_preds.append(real_pred)
+
+    dict = {'path':list_paths,'density':list_p,'label':list_labels,'prediction':list_preds} 
+    df = pd.DataFrame(dict)
+    df.to_csv(savepath+'predictions_class_corr_bw_'+str(size)+'_'+str(myseed)+'_'+str(nb_classes)+'_'+str(data_type)+'_.csv',index=False)
+        
+    return
+#############################################################################################
+def reg_prediction_dens(dataloader,size,model,seed,whole_dataset,savepath,nb_classes=31,data_type='val'):
+    was_training = model.training
+    model.eval()
+    list_paths=[]
+    list_labels=[]
+    list_preds=[]
+
+    #model=model.to('cpu')
+    header_l=['path','label','prediction']
+
+    with torch.no_grad():
+        for i, (inputs,labels,paths) in enumerate(dataloader):
+            
+            inputs=inputs.to('cpu')
+            labels=labels.to('cpu')
+            #inputs=inputs.float()
+            labels.numpy()
+            
+            predictions = model(inputs) #value of the output neurons
+            _, pred= torch.max(predictions,1)
+           
+            for j in range(inputs.size()[0]):
+               # paths_pred=[paths[j],p,labels[j].item(),pred[j].numpy()]
+                temp_paths=paths[j]
+                temp_labels=labels[j].detach().cpu().numpy()
+                temp_preds=pred[j].detach().cpu().numpy()
+                list_paths.append(temp_paths)
+                list_labels.append(temp_labels)
+                list_preds.append(temp_preds[0])
+    
+    dict = {'path':list_paths,'label':list_labels,'prediction':list_preds} 
+
+    df = pd.DataFrame(dict)
+    df.to_csv(savepath+'predictions_reg_density_bw_int_'+str(size)+'_'+str(myseed)+'_'+str(nb_classes)+'_'+str(data_type)+'_.csv',index=False)
+        
+    return
+#############################################################################################
+def reg_prediction_cor(dataloader,model,size,myseed,whole_dataset,savepath,nb_classes=31,data_type='val'):
+    was_training = model.training
+    model.eval()
+    list_paths=[]
+    list_labels=[]
+    list_preds=[]
+    list_p=[]
+    model=model.to('cpu')
+    header_l=['path','density','true label','prediction']
+    
+    with torch.no_grad():
+        for i, (inputs,labels,paths) in enumerate(dataloader):           
+            inputs=inputs.to('cpu')
+            labels=labels.to('cpu')
+            #inputs=inputs.double()
+            labels.numpy()            
+            predictions = model(inputs) #value of the output neurons
+                       
+            for j in range(inputs.size()[0]):
+                p_occ=paths[j].split('_')[7]      
+                regex2 = re.compile('\d+\.\d+')
+                p_reg=re.findall(regex2,p_occ)
+                p=float(p_reg[0])
+               # paths_pred=[paths[j],p,labels[j].item(),pred[j].numpy()]
+                temp_paths=paths[j]
+                temp_labels=labels[j].detach().cpu().numpy()
+                temp_preds=predictions[j].detach().cpu().numpy()
+                print('temp_labels',temp_labels)
+                print('temp_preds',temp_preds)
+                list_paths.append(temp_paths)
+                list_labels.append(temp_labels)
+                list_preds.append(temp_preds)
+                list_p.append(p)
+    
+
+    dict = {'path':list_paths,'density':list_p,'label':list_labels,'prediction':list_preds} 
+    df = pd.DataFrame(dict)
+    df.to_csv(savepath+'predictions_reg_corr_bw_int_'+str(size)+'_'+str(myseed)+'_'+str(nb_classes)+'_'+str(data_type)+'.csv',index=False)
+        
+    return
+################################################################################################
+def classification_prediction_dens(dataloader,size,seed,whole_dataset,savepath,nb_classes=31,data_type='val'):
+    was_training = model.training
+    model.eval()
+    list_paths=[]
+    list_labels=[]
+    list_preds=[]
+
+    #model=model.to('cpu')
+    header_l=['path','label','prediction']
+    class_to_idx=whole_dataset.class_to_idx
+    idx_to_class={v: k for k, v in class_to_idx.items()}
+    with torch.no_grad():
+        for i, (inputs,labels,paths) in enumerate(dataloader):
+            
+            inputs=inputs.to(device)
+            labels=labels.to(device)
+            #inputs=inputs.float()
+            #labels.numpy()
+            
+            predictions = model(inputs) #value of the output neurons
+            _, pred= torch.max(predictions,1)
+           
+            for j in range(inputs.size()[0]):
+               # paths_pred=[paths[j],p,labels[j].item(),pred[j].numpy()]
+                temp_paths=paths[j]
+                temp_labels=labels[j].detach().cpu().numpy()
+                temp_preds=pred[j].detach().cpu().numpy()
+                temp_preds=int(temp_preds)
+                temp_labels=int(temp_labels)
+                real_pred=idx_to_class[temp_preds]
+                real_label=idx_to_class[temp_labels]
+                list_paths.append(temp_paths)
+                list_labels.append(real_label)
+                list_preds.append(real_pred)
+    
+    dict = {'path':list_paths,'label':list_labels,'prediction':list_preds} 
+
+    df = pd.DataFrame(dict)
+    df.to_csv(savepath++str(size)+'_'+str(myseed)+'_'+str(nb_classes)+'_'+str(data_type)+'_.csv',index=False)
+        
+    return
+###################################################################################
+def density_as_func_proba_density(csv_file,size_samp=10000):
+    data=pd.read_csv(csv_file)
+    density=data['true label'].unique()
+    density.sort()
+    p_list=[]
+    pred_1_1=[]
+    pred_1_0=[]
+    pred_0_1=[]
+    pred_0_0=[]
+    div_1_1=[]
+    div_1_0=[]
+    div_0_1=[]
+    div_0_0=[]
+    ml_Samp=[]
+    data_train=pd.read_csv('../../Data_csv/real_proportions_density_in_train_dataset_55_62_'+str(size_samp)+'.csv')
+    
+    class_percoSamp=data_train['density'].unique()
+    len_percoSamp=len(class_percoSamp)
+    percoSamp=[size_samp]*len_percoSamp
+    percoNS=data_train['non_spanning']
+    percoS=data_train['spanning']
+    for p in density:
+        
+        new_df = data[data['density']==p]
+        nb_p=new_df['density'].count()
+        new_df_1=new_df[new_df['label']==1]
+        new_df_0=new_df[new_df['label']==0]
+        new_df_1_1=new_df_1[new_df_1['prediction']==1]
+        new_df_1_0=new_df_1[new_df_1['prediction']==0]
+        new_df_0_1=new_df_0[new_df_0['prediction']==1]
+        new_df_0_0=new_df_0[new_df_0['prediction']==0]
+        nb_p_1_1=new_df_1_1['density'].count()
+        nb_p_1_0=new_df_1_0['density'].count()
+        nb_p_0_1=new_df_0_1['density'].count()
+        nb_p_0_0=new_df_0_0['density'].count()
+
+
+        div_1_1=nb_p_1_1#/nb_p
+        div_1_0=nb_p_1_0#/nb_p
+        div_0_1=nb_p_0_1#/nb_p
+        div_0_0=nb_p_0_0#/nb_p
+        p_list.append(p)
+        pred_1_1.append(div_1_1)
+        pred_1_0.append(div_1_0)
+        pred_0_1.append(div_0_1)
+        pred_0_0.append(div_0_0)
+        ml_Samp.append(nb_p)
+
+    dict = {'density': p_list,'percoSamp':percoSamp,'percoNS':percoNS,'percoS':percoS,'mlSamp':ml_Samp,'SpS': pred_1_1, 'SpNS': pred_1_0,'NSpS': pred_0_1,'NSpNS': pred_0_0} 
+
+    df = pd.DataFrame(dict)
+    df.to_csv(savepath+'class_density_bw_proba_'+str(size)+'_'+str(size_samp)+'_'+str(myseed)+'.csv',index=False)
+   
+    return p_list,pred_1_1,pred_1_0,pred_0_1,pred_0_0
+

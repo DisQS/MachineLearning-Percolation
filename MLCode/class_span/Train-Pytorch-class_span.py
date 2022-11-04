@@ -24,6 +24,30 @@ import sys
 from MLtools import *
 import sklearn
 import re
+###########################################################################################
+if ( len(sys.argv) == 7 ):
+    #SEED = 101
+    SEED = int(sys.argv[1])
+    my_size= int(sys.argv[2])
+    my_size_samp=int(sys.argv[3])
+    my_validation_split= float(sys.argv[4])
+    my_batch_size=int(sys.argv[5])
+    my_num_epochs= int(sys.argv[6])
+
+else:
+    print ('Number of', len(sys.argv), \
+           'arguments is less than expected (2) --- ABORTING!')
+print('--> defining parameters')
+    
+myseed=SEED
+size= my_size
+nimages= 100
+size_samp=my_size_samp
+validation_split= my_validation_split
+batch_size=my_batch_size
+num_epochs= my_num_epochs
+training_set=0
+validation_set=0
 # everyone
 myDATAPATH='../../Data/'
 myCSV='../../Data_csv/'
@@ -138,30 +162,7 @@ def density_as_func_proba_span_bis(csv_file,size_samp=10000,data_type='val',data
 
 #######################################################################################################
 #print('######################')
-#print(sys.argv)
-if ( len(sys.argv) == 7 ):
-    #SEED = 101
-    SEED = int(sys.argv[1])
-    my_size= int(sys.argv[2])
-    my_size_samp=int(sys.argv[3])
-    my_validation_split= float(sys.argv[4])
-    my_batch_size=int(sys.argv[5])
-    my_num_epochs= int(sys.argv[6])
 
-else:
-    print ('Number of', len(sys.argv), \
-           'arguments is less than expected (2) --- ABORTING!')
-print('--> defining parameters')
-    
-myseed=SEED
-size= my_size
-nimages= 100
-size_samp=my_size_samp
-validation_split= my_validation_split
-batch_size=my_batch_size
-num_epochs= my_num_epochs
-training_set=0
-validation_set=0
 dataname='Perco-data-bw-very-hres-span-L'+str(size)+'-'+str(nimages)+'-s'+str(img_sizeX)+'_'+str(size_samp)+'_s'+str(myseed)
 datapath='../L'+str(size)+'/' 
 
