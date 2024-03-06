@@ -1,2 +1,2 @@
 # MachineLearning-Percolation
-Machine learning code to study the phase transition in percolation
+Machine learning code to study the phase transition in 2D percolation
