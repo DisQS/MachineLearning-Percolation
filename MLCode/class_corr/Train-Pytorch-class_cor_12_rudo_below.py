@@ -39,7 +39,7 @@ num_epochs= my_num_epochs
 ##################################################################################################
 print('--> defining files and directories')
 myDATAPATH='/home/p/phrhmb/Perco/Data/'
-myCSV='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_below_10000_12_rudo_class_new_corr.csv'#data_pkl_'+str(size)+'_'+str(size_samp)+'.csv'
+myCSV='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_below_10000_12_rudo_class_new_corr.csv'
 ######################################################################################################
 dataname='Perco-data-bw-very-hres-corr-below-pc-L'+str(size)+'-'+str(nimages)+'-s'+str(size)+'_10000'+'_s'+str(myseed)
 datapath='/home/p/phrhmb/Perco/Data/L'+str(size)  
@@ -62,18 +62,13 @@ cm_path_test=savepath+method+'_'+dataname+'cm_test_best.txt'
 print(savepath,modelpath,historypath)
 #######################################################################################################
 print('--> defining seeds')
+
 torch.manual_seed(myseed+1)
 np.random.seed(myseed+2)
 torch.cuda.manual_seed(myseed+3)
 #torch.cuda.seed()
 #torch.cuda.seed_all()
 random.seed(myseed+4)
-def seed_worker(worker_id):
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
-g = torch.Generator()
-g.manual_seed(myseed+5)
 
 print('--> defining ML lib versions and devices')
 print('torch version:',torch.__version__)
@@ -115,8 +110,6 @@ train = torch.utils.data.DataLoader(
         dataset=training_set,
         batch_size=batch_size,
         num_workers=16,
-        worker_init_fn=seed_worker,
-        generator=g,
         shuffle=True)
 
 print('--> loading validation data')
@@ -124,17 +117,12 @@ val = torch.utils.data.DataLoader(
         dataset=validation_set,
         batch_size=batch_size,
         num_workers=16,
-        worker_init_fn=seed_worker,
-        generator=g,
         shuffle=False)
-
 print('--> loading test data')
 test = torch.utils.data.DataLoader(
         dataset=test_set,
         batch_size=batch_size,
         num_workers=16,
-        worker_init_fn=seed_worker,
-        generator=g,
         shuffle=False)
 
 
@@ -171,6 +159,7 @@ model = model.to(device)
 
 # defining the optimizer
 print('--> defining optimizer')
+
 optimizer=torch.optim.Adadelta(model.parameters(), lr=1.0, rho=0.9, eps=1e-06, weight_decay=0)
 # defining the loss function
 criterion = nn.CrossEntropyLoss()
@@ -182,7 +171,6 @@ if torch.cuda.is_available():
     criterion = criterion.cuda()
 
 #the model is sent to the GPU
-#model=model.to(device)
 model=model.double()
 if flag==0:
     print('--> starting training epochs')

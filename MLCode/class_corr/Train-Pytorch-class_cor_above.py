@@ -69,12 +69,6 @@ torch.cuda.manual_seed(myseed+3)
 #torch.cuda.seed()
 #torch.cuda.seed_all()
 random.seed(myseed+4)
-def seed_worker(worker_id):
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
-g = torch.Generator()
-g.manual_seed(myseed+5)
 
 print('--> defining ML lib versions and devices')
 print('torch version:',torch.__version__)
@@ -115,8 +109,6 @@ train = torch.utils.data.DataLoader(
         dataset=training_set,
         batch_size=batch_size,
         num_workers=16,
-        worker_init_fn=seed_worker,
-        generator=g,
         shuffle=True)
 
 print('--> loading validation data')
@@ -124,8 +116,6 @@ val = torch.utils.data.DataLoader(
         dataset=validation_set,
         batch_size=batch_size,
         num_workers=16,
-        worker_init_fn=seed_worker,
-        generator=g,
         shuffle=False)
 
 print('--> loading test data')
@@ -133,8 +123,6 @@ test = torch.utils.data.DataLoader(
         dataset=test_set,
         batch_size=batch_size,
         num_workers=16,
-        worker_init_fn=seed_worker,
-        generator=g,
         shuffle=False)
 
 
@@ -166,8 +154,6 @@ num_ftrs = model.fc.in_features # number of input features of the last layer whi
 
 #We modify the last layer in order to have nb_output: nb_class
 model.fc=nn.Linear(num_ftrs, number_classes )
- #the model is sent to the GPU
-model = model.to(device)
 
 # defining the optimizer
 print('--> defining optimizer')
