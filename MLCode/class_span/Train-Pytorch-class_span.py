@@ -1,11 +1,5 @@
 #!/usr/bin/env python
-# coding: utf-8
-
 # ## Pytorch code percolation model with ResNet18
-
-# ## parameter choices
-
-# In[1]:
 from __future__ import print_function, division
 import os
 import numpy as np
@@ -13,17 +7,11 @@ import torch
 import torchvision
 from torch.optim import lr_scheduler
 from torchvision import models, transforms
-from sklearn.metrics import confusion_matrix
-from sklearn.preprocessing import LabelEncoder
 from torchsummary import summary
 import pandas as pd
-import time
-import pickle
 import random
-import re
-import copy
 import sys
-sys.path.insert(0, '/home/p/phrhmb/Perco/MLCode') # RAR
+sys.path.insert(0, '/home/p/phrhmb/Perco/MLCode') 
 from MLtools import *
 import sklearn
 
@@ -50,13 +38,14 @@ batch_size=my_batch_size
 num_epochs= my_num_epochs
 training_set=0
 validation_set=0
+#SET THE PATH FOR DIRECTORIES OF THE TRAINING/TEST DATASETS AND PATH TO CSV
+##################################################################################################
 myDATAPATH='/home/p/phrhmb/Perco/Data/L'+str(size)+'_rename'
 myTEST='/home/p/phrhmb/Perco/Data/L'+str(size)+'_test'
 myCSV='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_10000_p0.585_train_renamed_without_path.csv'
 myCSV_val='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_10000_p0.585_val_renamed_without_path.csv'
 myCSV_test='/home/p/phrhmb/Perco/Data_csv/data_pkl_test_p0.585_10_1000_585.csv'
 dataname='Perco-data-bw-very-hres-span-L'+str(size)+'_'+str(size_samp)+'_s'+str(myseed)
-    
 #############################################################################################
 def density_as_func_proba_span_bis(csv_file,size_samp=10000,data_type='val',data_range=''):
     data=pd.read_csv(csv_file)
@@ -95,8 +84,6 @@ def density_as_func_proba_span_bis(csv_file,size_samp=10000,data_type='val',data
         nb_p_1_0=new_df_1_0['density'].count()
         nb_p_0_1=new_df_0_1['density'].count()
         nb_p_0_0=new_df_0_0['density'].count()
-
-
         div_1_1=nb_p_1_1#/nb_p
         div_1_0=nb_p_1_0#/nb_p
         div_0_1=nb_p_0_1#/nb_p
@@ -119,8 +106,6 @@ def density_as_func_proba_span_bis(csv_file,size_samp=10000,data_type='val',data
     size=100
     myseed=0
     df.to_csv('class_span_bw_v_h_res_'+str(size)+'_'+str(size_samp)+'_'+str(myseed)+'_'+str(data_type)+'.csv',index=False)
-   
-
     return p_list,pred_1_1,pred_1_0,pred_0_1,pred_0_0
 
 ####################################################################################################### 
@@ -221,10 +206,7 @@ print('number of samples in a batch',len(train))
 print('number of samples in a batch',len(val))
 print('number of classes',number_classes )
 
-
 # ## building the CNN
-
-
 model=models.resnet18(pretrained=True, progress=True)
 model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
 num_ftrs = model.fc.in_features # number of input features of the last layer which is fully connected (fc)
@@ -256,7 +238,7 @@ model = model.to(device)
 model=model.double()
 if flag==0:
 	base_model = train_model(
-   	 model,train,val,device, criterion, optimizer,num_epochs,exp_lr_scheduler,savepath, 	method,dataname,modelname,modelpath,
+   	 model,train,val,device, criterion, optimizer,num_epochs,exp_lr_scheduler,savepath, method,dataname,modelname,modelpath,
   	  batch_size,class_names )
 else:
     print('--> loading saved model')
