@@ -2,9 +2,10 @@ import numpy as np
 from collections import Counter, OrderedDict
 import random
 import os
-import imageio
+#import imageio
 import binascii
 import sys
+import pandas as pd
 import time 
 import datetime
 import pickle
@@ -24,7 +25,7 @@ def correlation_function_pbc(filename_data):
         np.savetxt(filename+'.cor',np.zeros(10), header=header, fmt=['    %.7f  '])
 
         # actual data generation
-        data=pickle.load(open(filename_data,"rb")) 
+        data=pickle.load(open(filename+'.pkl',"rb")) 
         lattice=data['cluster_pbc_int'] #cluster_pbc_int
         #square_proba=data['square proba']
         proba_largest=data['proba largest']
@@ -189,15 +190,23 @@ def correlation_l(filename_pkl):
     from math import sqrt
     start=time.time()
     correlation=0
-    sq_corr_l=0
+    sq_corr_l_old=0
+    sq_corr_l_no_norm=0
+    sq_corr_l_norm=0
     denom=0
+    correlation_large_old=0
     correlation_large=0
+    correlation_length_old=0
+    correlation_length_norm=0
+    correlation_length_no_norm=0
+    denom_large_old=0
     denom_large=0
+   
     filename=filename_pkl.rsplit('.', 1)[0]
     print(filename)    
     corr_data= np.loadtxt(filename+'.cor', unpack=True)
 
-    pkl_file=open(filename_pkl,"rb")
+    pkl_file=open(filename+'.pkl',"rb")
     dictionary=pickle.load(pkl_file) #load data from dictionary
     pkl_file.close()
     #We collect the probability of occupation p, the seed and the size of the system from the filename
@@ -214,62 +223,120 @@ def correlation_l(filename_pkl):
     L_sys_reg=re.findall(regex4,L_sys)
     sys_size=int(L_sys_reg[0])    
     proba_largest=dictionary['proba largest']
-    filename_cl='corlen_L'+str(sys_size)+'_p'+str(p)+'.cl' #name of the file containing the correlation lengths
-   
+    filename_cl='corlen_L'+str(sys_size)+'_p'+str(p)+'_cl.csv' #name of the file containing the correlation lengths
+    
     if filename_cl in os.listdir('.'): #check if the file exists in the directory and a correlation length associated to our current seed exists
-        seeds=np.loadtxt(filename_cl,unpack=True)[0]
-        if type(seeds)==np.ndarray and seed in seeds:
+        data=pd.read_csv(filename_cl)
+        print(seed)
+        if int(seed) in data['seeds'].values:
             print('the correlation length associated to this seed already exists')
             return
-        elif type(seeds)==np.float64 and seed==seeds:
-            print('the correlation length associated to this seed already exists')
-            return
+        #elif type(seeds)==np.float64 and seed==seeds:
+         #   print('the correlation length associated to this seed already exists')
+          #  return
         else:
             for i in range(len(corr_data[0])):
+                if p>0.585:
+                    corr_value=corr_data[1][i]-proba_largest
+                    if corr_value>=0 and corr_value>=10**(-8):
+                        correlation_large+= ((corr_data[0][i]**2)*(corr_data[1][i]-proba_largest))              
+                        denom_large+=(corr_data[1][i]-proba_largest)
+                    else:
+                        break
+                elif p<=0.585:
+                    corr_value=corr_data[1][i]      
+                    corr_value_old=corr_data[1][i]             
+                    if corr_value>=0 and corr_value>=10**(-8):
+                        correlation_large+= ((corr_data[0][i]**2)*(corr_data[1][i]))              
+                        denom_large+=(corr_data[1][i])
+                    else:
+                        break
+                corr_value_old=corr_data[1][i]-proba_largest
+                if corr_value_old>=0 and corr_value_old>=10**(-8):
+                    correlation_large_old+= ((corr_data[0][i]**2)*(corr_data[1][i]-proba_largest))              
+                    denom_large_old+=(corr_data[1][i]-proba_largest)
+                else:
+                    break
+
+            sq_corr_l_old=(correlation_large_old/(6*denom_large_old))
+            sq_corr_l_norm=(correlation_large/(6*denom_large))
+            sq_corr_l_no_norm=(correlation_large/(denom_large))
+            if sq_corr_l_norm<=0 :
+                correlation_length_old=0
+                correlation_length_norm=0
+            else:
+                correlation_length_old=sqrt(sq_corr_l_old)
+                correlation_length_norm=sqrt(sq_corr_l_norm)
+            if sq_corr_l_no_norm<=0:
+                correlation_length_no_norm=0
+            else:
+                correlation_length_no_norm=sqrt(sq_corr_l_no_norm)
+            value_df=pd.DataFrame({
+      "seeds": [int(seed)],
+      "density":[p],
+      "old_corr": [correlation_length_old],
+      "new_corr_norm": [correlation_length_norm],
+      "new_corr_no_norm":[correlation_length_no_norm]})
+            #print(value_df)
+            new_df = pd.concat([data, value_df], axis=0)
+            #print(new_df)
+            new_df.to_csv(filename_cl, index = False)   
+            return
+    else:
+        for i in range(len(corr_data[0])):
+            if p>0.585:
                 corr_value=corr_data[1][i]-proba_largest
                 if corr_value>=0 and corr_value>=10**(-8):
                     correlation_large+= ((corr_data[0][i]**2)*(corr_data[1][i]-proba_largest))              
                     denom_large+=(corr_data[1][i]-proba_largest)
                 else:
                     break
-            sq_corr_l=(correlation_large/(6*denom_large))
-            if sq_corr_l==0:
-                correlation_length=0
-            elif sq_corr_l<0:
-                correlation_length=0
-            else:
-                correlation_length=sqrt(sq_corr_l)
-            with open(filename_cl, "a+") as file_cl:
-                file_cl.write("\n"+str(seed)+'    '+ str(p)+'    ' + str(correlation_length))
-                file_cl.close()   
-            return
-    else:
-        for i in range(len(corr_data[0])):
-            
-            corr_value=corr_data[1][i]-proba_largest
-            if corr_value>=0 and corr_value>=10**(-8):
-                correlation_large+= ((corr_data[0][i]**2)*(corr_data[1][i]-proba_largest))              
-                denom_large+=(corr_data[1][i]-proba_largest)
+            elif p<=0.585:
+                corr_value=corr_data[1][i]      
+                corr_value_old=corr_data[1][i]             
+                if corr_value>=0 and corr_value>=10**(-8):
+                    correlation_large+= ((corr_data[0][i]**2)*(corr_data[1][i]))              
+                    denom_large+=(corr_data[1][i])
+                else:
+                    break
+            corr_value_old=corr_data[1][i]-proba_largest
+            if corr_value_old>=0 and corr_value_old>=10**(-8):
+                correlation_large_old+= ((corr_data[0][i]**2)*(corr_data[1][i]-proba_largest))              
+                denom_large_old+=(corr_data[1][i]-proba_largest)
             else:
                 break
-        sq_corr_l=(correlation_large/(6*denom_large))
-    if sq_corr_l==0:
-        correlation_length=0
-    elif sq_corr_l<0:
-        correlation_length=0
-    else:
-        correlation_length=sqrt(sq_corr_l)
-    with open(filename_cl, "a+") as file_cl:
-        file_cl.write(str(seed)+'    '+ str(p)+'    ' + str(correlation_length))
-        file_cl.close()        
+
+        sq_corr_l_old=(correlation_large_old/(6*denom_large_old))
+        sq_corr_l_norm=(correlation_large/(6*denom_large))
+        sq_corr_l_no_norm=(correlation_large/(denom_large))
+        print("old_corr",sq_corr_l_old,"new_corr_norm",sq_corr_l_norm, "new_corr_no_norm",sq_corr_l_no_norm)
+        if sq_corr_l_norm<=0 :
+            correlation_length_old=0
+            correlation_length_norm=0
+        else:
+            correlation_length_old=sqrt(sq_corr_l_old)
+            correlation_length_norm=sqrt(sq_corr_l_norm)
+        if sq_corr_l_no_norm<=0:
+            correlation_length_no_norm=0
+        else:
+            correlation_length_no_norm=sqrt(sq_corr_l_no_norm)   
+        print(correlation_length_old)
+        value_df = {
+      "seeds": [int(seed)],
+      "density":[p],
+      "old_corr": [correlation_length_old],
+      "new_corr_norm": [correlation_length_norm],
+      "new_corr_no_norm":[correlation_length_no_norm]}
+        #print(value_df)
+        df_cl=pd.DataFrame(value_df)
+        #print(df_cl)
+        df_cl.to_csv(filename_cl, index = False) 
+    print(correlation_length_old)    
     end=time.time()-start
     print('corre_length_end',end)
-    return correlation_length
-
+    return correlation_length_old
 ##########################################################  
 def average_correlation_l(filename_cl):
-    sum_corr_l=0
-    div=0
     #We collect the probability of occupation p and the size of the system from the filename
     filename=filename_cl.rsplit('.', 1)[0]
     p_occ=filename.split('_')[2]     
@@ -280,28 +347,26 @@ def average_correlation_l(filename_cl):
     regex4 = re.compile('\d+')
     L_sys_reg=re.findall(regex4,L_sys)
     sys_size=int(L_sys_reg[0])
-    
-    corr_data= np.loadtxt(filename_cl,unpack=True) #load the corlen file
-    seeds=corr_data[0]
-    p_occs=corr_data[1]
-    corr_lengths=corr_data[2]
-
-    for corr_l in corr_lengths:
-        if corr_l!=0:
-            sum_corr_l+=corr_l
-            div+=1
-    average_correlation_length=sum_corr_l/div
-
-    txt_file=open('avg_corrlen_L'+str(sys_size)+'_p'+str(p)+'.acl', "w+")
-    txt_file.write(repr(average_correlation_length))
-    txt_file.close()
+    corr_data=pd.read_csv(filename_cl) #load the corlen file
+    mean_old_corr_lengths=corr_data[corr_data['old_corr'] != 0]['old_corr'].mean()
+    mean_norm_corr_lengths=corr_data[corr_data['new_corr_norm'] != 0]['new_corr_norm'].mean()
+    mean_no_norm_corr_lengths=corr_data[corr_data['new_corr_no_norm'] != 0]['new_corr_no_norm'].mean()
+    value_df = {
+      "density":[p],
+      "mean_old_corr_lengths": [mean_old_corr_lengths],
+      "mean_norm_corr_lengths": [mean_norm_corr_lengths],
+      "mean_no_norm_corr_lengths":[mean_no_norm_corr_lengths]}
+        #print(value_df)
+    df_acl=pd.DataFrame(value_df)
+        #print(df_cl)
+    df_acl.to_csv('avg_corrlen_L'+str(sys_size)+'_p'+str(p)+'_acl.csv', index = False)
 
     return                
 #########################################################################################################################
 option_select= int(sys.argv[1])
 filename_pkl= str(sys.argv[2])
 filename_corr= str(sys.argv[3])
-
+print(sys.argv)
 directory=os.getcwd()
 p=directory.rsplit('/', 1)[1]
 L=directory.rsplit('/', 2)[1]
@@ -321,12 +386,12 @@ elif option_select==3 :
     correlation_function_pbc(filename_pkl)
     correlation_l(filename_corr)
 elif option_select==4 :
-    average_correlation_l('corlen_'+L+'_'+p+'.cl')
+    average_correlation_l('corlen_L100_'+str(p)+'_cl.csv')
 elif option_select==6 :
     correlation_l(filename_corr)
-    average_correlation_l('corlen_'+L+'_'+p+'.cl')
+    average_correlation_l('corlen_L100_'+str(p)+'_cl.csv')
 else:
     correlation_function_pbc(filename_pkl)
     correlation_l(filename_corr)
-    average_correlation_l('corlen_'+L+'_'+p+'.cl')
+    average_correlation_l('corlen_L100_'+str(p)+'_cl.csv')
 
