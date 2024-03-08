@@ -1,10 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
-
-# ## Pytorch code percolation model with ResNet18
-## parameter choices
-                                                
-# In[1]:
 from __future__ import print_function, division
 import os
 import numpy as np
@@ -12,19 +6,12 @@ import torch
 import torchvision
 from torch.optim import lr_scheduler
 from torchvision import models, transforms
-from sklearn.metrics import confusion_matrix
-from sklearn.preprocessing import LabelEncoder
-import pandas as pd
 from torchsummary import summary
-import time
-import pickle
-import copy
 import random
 import sklearn
-import re
-import sys                                           ##############    BE CAREFUL
-sys.path.insert(0, '/home/p/phrhmb/Perco/MLCode')##########################################################
-from MLtools import *                                ##########################################################
+import sys                                           
+sys.path.insert(0, '/home/p/phrhmb/Perco/MLCode')  #absolute path of MLtools file
+from MLtools import *                                
 #####################################################################
 print(sys.argv)
 if ( len(sys.argv) == 8 ):
@@ -38,10 +25,9 @@ if ( len(sys.argv) == 8 ):
     flag=int(sys.argv[7])
 else:
     print ('Number of', len(sys.argv), \
-           'arguments is less than expected (2) --- ABORTING!')
+           'arguments is less than expected (8) --- ABORTING!')
     
-print('--> defining parameters')
-    
+print('--> defining parameters')    
 myseed=SEED
 size= my_size
 nimages= 100
@@ -51,11 +37,14 @@ batch_size=my_batch_size
 num_epochs= my_num_epochs
 training_set=0
 validation_set=0
-# everyone
+
+#SET THE PATH FOR DIRECTORIES OF THE TRAINING/TEST DATASETS AND PATH TO CSV
+##################################################################################################
 myDATAPATH='../../../Data/L'+str(size)+'_rename/L'+str(size)+'_rename'
 myDATAPATH_test='../../../Data/L'+str(size)+'_test_1000'
 myCSV='../../../Data_csv/data_pkl_100_10000_shuffled_new_avg_int.csv'
 myCSV_test='../../../Data_csv/data_pkl_100_test_redo_1000.csv'
+##################################################################################################
 dataname='Perco-data-reg-bw-int-corr-shuffled-L'+str(size)+'_'+str(size_samp)#'-100-s100'+'_'+str(size_samp)+'_s'+str(myseed)
 #myCSV='../../../Data_csv/data_pkl_100_10000_int.csv'
 #dataname='Perco-data-reg-bw-int-corr-L'+str(size)+'_'+str(size_samp)
@@ -63,7 +52,7 @@ dataname='Perco-data-reg-bw-int-corr-shuffled-L'+str(size)+'_'+str(size_samp)#'-
 
     
 print(dataname)#,"\n",datapath)
-method='PyTorch-resnet34-pretrained-'+str(myseed)+'-e'+str(num_epochs)+'-bs'+str(batch_size)+'-s'+str(myseed)
+method='PyTorch-resnet18-pretrained-'+str(myseed)+'-e'+str(num_epochs)+'-bs'+str(batch_size)+'-s'+str(myseed)
 modelname = 'Model_'+method+'_'+dataname+'_s'+str(myseed)
 historyname = 'History_'+method+'_'+dataname+'_s'+str(myseed)+'.pkl'
 print(method,"\n",modelname,"\n",historyname)
@@ -148,10 +137,9 @@ print('number of classes',number_classes )
 
 print('--> building the CNN')
 # ## building the CNN
-resnet18_model=models.resnet34(pretrained=True, progress=True)
+resnet18_model=models.resnet18(pretrained=True, progress=True)
 resnet18_model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
 model=Resnet18_regression(resnet18_model=resnet18_model)
-model = model.to(device)
 print(model)
 print('#############################')
 print(summary(model, (1, 100,100)))
@@ -168,7 +156,6 @@ if torch.cuda.is_available():
     criterion = criterion.cuda()
 
 #the model is sent to the GPU
-model = model.to(device)
 model=model.double()
 
 
