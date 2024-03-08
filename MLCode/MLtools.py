@@ -1,20 +1,18 @@
 import torchvision
 import torch
-from torchvision import transforms
+from torchvision import datasets, models, transforms
+import torch.nn as nn
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from sklearn.metrics import confusion_matrix
+from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import pandas as pd
 import csv
-from IPython.display import Image
 import pickle
 import time
 import os
 import re
-import itertools
-import matplotlib.ticker as plticker
-import time
 #from ray import tune
 #from ray.tune import CLIReporter
 #from ray.tune.schedulers import ASHAScheduler
@@ -45,14 +43,16 @@ def train_model(model,train,val,device,criterion, optimizer, num_epochs, schedul
         list_model=[savepath + files for files in temp_list_model]
         print(list_model[0])
         print(os.getcwd())
-        list_model.sort(key=os.path.getctime) #sort list of saved model by oldest to more recent
+        list_model.sort(key=os.path.getctime)
         print(list_model)
         checkpoint=torch.load(list_model[-1])
+
         model.load_state_dict(checkpoint['model_state_dict'])
+
         model.train()
-        best_model_wts = copy.deepcopy(model.state_dict()) #save best model
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict']) 
-        val_loss=checkpoint['val loss'] #load previous value of metrics
+        best_model_wts = copy.deepcopy(model.state_dict())
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        val_loss=checkpoint['val loss']
         accuracy=checkpoint['train acc']
         _loss=checkpoint['train loss']
         val_accuracy=checkpoint['val acc']
@@ -65,8 +65,8 @@ def train_model(model,train,val,device,criterion, optimizer, num_epochs, schedul
 
 
     init=time.time()
-    for epoch in range(start_epoch,num_epochs): #restart model at start_epoch
-        print('Epoch {}/{}'.format(epoch+1,num_epochs)) 
+    for epoch in range(start_epoch,num_epochs):
+        print('Epoch {}/{}'.format(epoch+1,num_epochs))
         print('-' * 10)
 
     #two phases training and validating
@@ -153,7 +153,7 @@ def train_model(model,train,val,device,criterion, optimizer, num_epochs, schedul
         'accuracy', 'val loss',   'val accuracy')
         filename=savepath+method+'_'+dataname+'accuracy_loss'+'.txt'
         np.savetxt(filename, train_data, header=header, fmt=['    %d  ','  %.7f','  %.7f','  %.7f','     %.7f'])
-        if time.time()-init>18000: #save at checkpoint
+        if time.time()-init>18000:
             torch.save({'train epoch': epochs,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
@@ -164,7 +164,7 @@ def train_model(model,train,val,device,criterion, optimizer, num_epochs, schedul
             'cm':cm}, modelpath+'_epochs_'+str(epoch)+'.pth')
             init=time.time()
             print('saved')
-    torch.save({'train epoch': epochs, #save best model and metrics at the end of the training
+    torch.save({'train epoch': epochs,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'train acc': accuracy,
@@ -193,10 +193,6 @@ class Dataset_csv_pkl(torch.utils.data.Dataset):
         Args:
             csv_file (string): Path to the csv file with annotations.
             root_dir (string): Directory with all the images.
-            classe_type(string): Label trained between 'dens', 'span' and 'corr'
-            array_type(string): black and white type lattice ('bw') or with cluster number ('clus')
-            data_type(string): Training with 'img' or 'pkl'
-            type_file (string): if not normal symlink
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
@@ -211,7 +207,7 @@ class Dataset_csv_pkl(torch.utils.data.Dataset):
         self.type_file=type_file
         num_column=0
 
-        if classe_type=='density': #column read in csv file, depends on classe~_type
+        if classe_type=='density':
             num_column=1
         elif classe_type=='corr':
             num_column=8
@@ -363,9 +359,6 @@ class former_Dataset_csv_pkl(torch.utils.data.Dataset):
         Args:
             csv_file (string): Path to the csv file with annotations.
             root_dir (string): Directory with all the images.
-            classe_type(string): Label trained between 'dens', 'span' and 'corr'
-            array_type(string): black and white type lattice ('bw') or with cluster number ('clus')
-            data_type(string): Training with 'img' or 'pkl'
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
@@ -383,6 +376,8 @@ class former_Dataset_csv_pkl(torch.utils.data.Dataset):
             num_column=1
         elif classe_type=='corr':
             num_column=8
+
+
         else:
             num_column=2
         classes=[]
@@ -402,6 +397,7 @@ class former_Dataset_csv_pkl(torch.utils.data.Dataset):
              df = pd.DataFrame(classes,columns=['classes'])
         #print(df)
 
+
         if classe_type=='density':
             classes_ordered = list(df.drop_duplicates(keep="first")['classes'])
             classes=classes_ordered
@@ -411,7 +407,10 @@ class former_Dataset_csv_pkl(torch.utils.data.Dataset):
             classes_ordered=df.sort_values('classes order').drop_duplicates(subset=['classes'], keep='first')
             classes_unprocessed=classes_ordered['classes'].tolist()
             classes = [str(round(float(num), 5)) for num in classes_unprocessed]
+
             print(classes)
+
+
         else:
             classes_ordered = list(df.drop_duplicates(keep="first")['classes'])
             classes=[span for span in classes_ordered]
@@ -419,7 +418,6 @@ class former_Dataset_csv_pkl(torch.utils.data.Dataset):
         self.classes = classes
         class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
         self.class_to_idx=class_to_idx
-
     def _find_classes(self,root_dir,csv_file):
         if self.classe_type=='corr':
             num_column=8
@@ -446,17 +444,20 @@ class former_Dataset_csv_pkl(torch.utils.data.Dataset):
             classes_ordered = list(df.drop_duplicates(keep="first")['classes'])
             classes=classes_ordered
             classes.sort()
+
         elif self.classe_type=='corr':
             classes_ordered=df.sort_values('classes order').drop_duplicates(subset=['classes'], keep='first')
             classes_unprocessed=classes_ordered['classes'].tolist()
             classes = [str(round(float(num), 5)) for num in classes_unprocessed]
+
         else:
             classes_ordered = list(df.drop_duplicates(keep="first")['classes'])
             classes=[span for span in classes_ordered]
             classes.sort()
-        class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
-        return classes, class_to_idx
 
+        class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
+
+        return classes, class_to_idx
     def __len__(self):
         return len(self.csv_data)
 
@@ -506,9 +507,10 @@ class former_Dataset_csv_pkl(torch.utils.data.Dataset):
         return data, labels,paths
 ##########################################################################################
 class MyImageFolder2(torchvision.datasets.ImageFolder):
-    """Custom dataset that includes the paths of each sample. Extends
+    """Custom dataset that includes image file paths. Extends
     torchvision.datasets.ImageFolder
     """
+
     # override the __getitem__ method. this is the method that dataloader calls
     def __getitem__(self, index):
         # this is what ImageFolder normally returns
@@ -520,9 +522,10 @@ class MyImageFolder2(torchvision.datasets.ImageFolder):
         return tuple_with_path
 ##########################################################################################
 class DatasetFolder2(torchvision.datasets.DatasetFolder):
-    """Custom dataset that includes the paths of each sample. Extends
-    torchvision.datasets.DatasetFolder
+    """Custom dataset that includes image file paths. Extends
+    torchvision.datasets.ImageFolder
     """
+
     # override the __getitem__ method. this is the method that dataloader calls
     def __getitem__(self, index):
         # this is what ImageFolder normally returns
@@ -534,7 +537,7 @@ class DatasetFolder2(torchvision.datasets.DatasetFolder):
         return tuple_with_path
 
 ###########################################################################################
-class Dataset_csv_img_p(torch.utils.data.Dataset): #classification of images for p
+class Dataset_csv_img_p(torch.utils.data.Dataset):
     def __init__(self, csv_file, root_dir, transform=None):
         self.img = pd.read_csv(csv_file)
         self.root_dir = root_dir
@@ -594,7 +597,7 @@ class Dataset_csv_img_p(torch.utils.data.Dataset): #classification of images for
         paths=sample['path']
         return images, labels,paths
 ###############################################################################
-class Dataset_csv_pkl_multi(torch.utils.data.Dataset): #multi label classification, not really exploited
+class Dataset_csv_pkl_multi(torch.utils.data.Dataset):
     def __init__(self, csv_file, root_dir, transform=None):
         self.data = pd.read_csv(csv_file)
         self.root_dir = root_dir
@@ -672,7 +675,8 @@ class Dataset_csv_pkl_multi(torch.utils.data.Dataset): #multi label classificati
         return data, label_p,label_span,paths
 
 ###############################################################################
-class Dataset_csv_pkl_multi_clus(torch.utils.data.Dataset): #multi label classification, not really exploited
+class Dataset_csv_pkl_multi_clus(torch.utils.data.Dataset):
+
     def __init__(self, csv_file, root_dir, transform=None):
         self.data = pd.read_csv(csv_file)
         self.root_dir = root_dir
@@ -748,8 +752,7 @@ class Dataset_csv_pkl_multi_clus(torch.utils.data.Dataset): #multi label classif
         return data, label_p,label_span,paths
 
 ###########################################################################################
-class Dataset_csv_pkl_reg(torch.utils.data.Dataset): 
-#Load dataset for regression training without encoding of label
+class Dataset_csv_pkl_reg(torch.utils.data.Dataset):
     def __init__(self, csv_file, root_dir,size,classe_type='span',array_type='clus',type_file='normal', transform=None):
         self.img = pd.read_csv(csv_file,error_bad_lines=False,header=None)
         self.root_dir = root_dir
@@ -873,7 +876,6 @@ def raw_file_loader(width,input):
     return functions
 ##########################################################################################
 def train_reg_model(model,train,val,device,criterion, optimizer, num_epochs, scheduler,savepath, method,dataname,modelname,modelpath,batch_size,class_names):
-#Function for regression training
     best_loss = 20000.0
     _loss=[]
     val_loss=[]
@@ -930,7 +932,11 @@ def train_reg_model(model,train,val,device,criterion, optimizer, num_epochs, sch
             # print('--- iterating through data ...')
 
             for i, (inputs,labels,paths) in tqdm(enumerate(phase), total=int(len_dataset/phase.batch_size),desc=name_phase):
+
+
+
                 inputs=inputs.double()
+
                 inputs=inputs.to(device)
                 labels=labels.to(device)
                 #labels = [_label.cuda() for _label in label]
@@ -1436,6 +1442,9 @@ def visualize_model(model,chosen_set,device,class_names, num_images=6):
 
 ##########################################################################################
 def visualize_model_misclassified(model,chosen_set,device,class_names, num_images=6): #gives shows only the misclassified images
+    import re
+    from IPython.display import Image
+
     was_training = model.training
     model.eval()
     images_handeled  = 0
@@ -1522,6 +1531,8 @@ def analysis(model,chosen_set,device,number_classes,class_names,savepath, method
     plt.plot(class_names,average)
     plt.savefig(savepath+method+'_'+dataname+'_classacc_'+'.png')
 
+
+
 ##########################################################################################
 #@torch.no_grad()
 def simple_confusion_matrix(model,loader,device,number_classes,class_names):
@@ -1540,10 +1551,20 @@ def simple_confusion_matrix(model,loader,device,number_classes,class_names):
             for p,t in zip(preds.view(-1),labels.view(-1)):
 		#confusion_matrix[t.long(), p.long()] += 1
                 confusion_matrix[p.long(), t.long()] += 1
+
+
     return confusion_matrix
 
 ##########################################################################################
 def confusion_matrix_torch(cm, target_names,savepath, method,dataname,cmap=None,title='Confusion Matrix'):
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import itertools
+    import matplotlib.ticker as plticker
+    import time
+
+
+
     #accuracy = np.trace(cm) / float(np.sum(cm))
     #misclass = 1 - accuracy
 
@@ -1576,6 +1597,7 @@ def confusion_matrix_torch(cm, target_names,savepath, method,dataname,cmap=None,
     plt.ylabel('Predicted label',fontsize=50)
     plt.savefig(savepath+method+'_'+dataname+'.png')
     plt.show()
+
     return
 ######################################################################################################
 def confusion_matrix_seaborn(cm,target,savepath, method,dataname):
@@ -1641,15 +1663,18 @@ def reg_prediction_dens(dataloader,size,model,myseed,savepath,nb_classes=31,data
     list_paths=[]
     list_labels=[]
     list_preds=[]
+
     model=model.to('cpu')
     header_l=['path','label','prediction']
 
     with torch.no_grad():
         for i, (inputs,labels,paths) in enumerate(dataloader):
+
             inputs=inputs.to('cpu')
             labels=labels.to('cpu')
             #inputs=inputs.float()
             labels.numpy()
+
             predictions = model(inputs) #value of the output neurons
            # _, pred= torch.max(predictions,1)
             print('pred',predictions)
@@ -1691,11 +1716,10 @@ def reg_prediction_cor(dataloader,model,size,myseed,savepath,nb_classes=31,data_
             predictions = model(inputs) #value of the output neurons
 
             for j in range(inputs.size()[0]):               
-                #p_occ=paths[j].split('_')[7] #This section is commented out as symlink file do not have p in path
-                #regex2 = re.compile('\d+\.\d+')
-                #p_reg=re.findall(regex2,p_occ)
-                ##print(p_reg)
-                #p=float(p_reg[0])
+                #p_temp=paths[j].split('_p0.')
+                #print(p_temp)
+                #p=p_temp[1].split('_L')[0]
+     
                # paths_pred=[paths[j],p,labels[j].item(),pred[j].numpy()]
                 temp_paths=paths[j]
                 temp_labels=labels[j].detach().cpu().numpy()
