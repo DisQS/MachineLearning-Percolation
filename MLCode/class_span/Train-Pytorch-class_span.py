@@ -11,7 +11,7 @@ from torchsummary import summary
 import pandas as pd
 import random
 import sys
-sys.path.insert(0, '/home/p/phrhmb/Perco/MLCode') 
+sys.path.insert(0, '/home/p/phrhmb/Perco/MLCode')  #absolute path of MLtools file
 from MLtools import *
 import sklearn
 
@@ -40,11 +40,10 @@ training_set=0
 validation_set=0
 #SET THE PATH FOR DIRECTORIES OF THE TRAINING/TEST DATASETS AND PATH TO CSV
 ##################################################################################################
-myDATAPATH='/home/p/phrhmb/Perco/Data/L'+str(size)+'_rename'
+myDATAPATH='/home/p/phrhmb/Perco/Data/L'+str(size)+'/'
 myTEST='/home/p/phrhmb/Perco/Data/L'+str(size)+'_test'
-myCSV='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_10000_p0.585_train_renamed_without_path.csv'
-myCSV_val='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_10000_p0.585_val_renamed_without_path.csv'
-myCSV_test='/home/p/phrhmb/Perco/Data_csv/data_pkl_test_p0.585_10_1000_585.csv'
+myCSV='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_10000.csv'
+myCSV_test='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_test_1000.csv'
 dataname='Perco-data-bw-very-hres-span-L'+str(size)+'_'+str(size_samp)+'_s'+str(myseed)
 #############################################################################################
 def density_as_func_proba_span_bis(csv_file,size_samp=10000,data_type='val',data_range=''):
@@ -155,42 +154,34 @@ print('--> reading CSV data')
 print(os.getcwd())
 train_dataset = Dataset_csv_pkl(csv_file=myCSV,
                                      root_dir=myDATAPATH, classe_type='span',
-                                array_type='bw',type_file='symlink',data_type='pkl',transform=transforms.ToTensor())
-val_dataset = Dataset_csv_pkl(csv_file=myCSV_val,
-                                     root_dir=myDATAPATH, classe_type='span',
-                                array_type='bw',type_file='symlink',data_type='pkl',transform=transforms.ToTensor())
+                                array_type='bw',type_file='normal',data_type='pkl',transform=transforms.ToTensor())
+
 test_dataset=Dataset_csv_pkl(csv_file=myCSV_test,
                                      root_dir=myTEST, classe_type='span',
                                 array_type='bw',data_type='pkl',transform=transforms.ToTensor())
 
 os.getcwd()
 data_size = len(train_dataset)+len(val_dataset)
-#split=int(np.floor(validation_split*data_size))
+split=int(np.floor(validation_split*data_size))
 training=len(train_dataset)
 # split the data into training and validation
-#training_set, validation_set= torch.utils.data.random_split(whole_dataset,(training,split))
+training_set, validation_set= torch.utils.data.random_split(whole_dataset,(training,split))
 print('--> loading training data')
 train = torch.utils.data.DataLoader(
         dataset=train_dataset,
         batch_size=batch_size,
         num_workers=16,
-        worker_init_fn=seed_worker,
-        generator=g,
         shuffle=True)
 print('--> loading validation data')
 val = torch.utils.data.DataLoader(
-        dataset=val_dataset,
+        dataset=validation_set,
         batch_size=batch_size,
         num_workers=16,
-        worker_init_fn=seed_worker,
-        generator=g,
         shuffle=False)
 test= train = torch.utils.data.DataLoader(
         dataset=test_dataset,
         batch_size=batch_size,
         num_workers=16,
-        worker_init_fn=seed_worker,
-        generator=g,
         shuffle=True)
 print('--> defining classes/labels')
 class_names =val_dataset.classes
@@ -257,12 +248,13 @@ np.savetxt(savepath+method+'_'+dataname+'cm_val_best.txt',cm,fmt='%d')
 cm_test=simple_confusion_matrix(model,test,device,number_classes,class_names)
 np.savetxt(savepath+method+'_'+dataname+'cm_test_best.txt',cm_test,fmt='%d')
 print('--> computing/saving classification outputs')
-#classification_prediction_span(val,size,savepath,myseed,model)
-classification_prediction_span(test,1000,savepath,myseed,model)
-csv_file=savepath+'predictions_class_span_bw_v_h_res_'+str(size)+'_'+str(size_samp)+'_'+str(myseed)+'_val.csv'
-csv_file2=savepath+'predictions_class_span_bw_v_h_res_'+str(size)+'_1000_'+str(myseed)+'_val.csv'
-density_as_func_proba_span_bis(csv_file,size_samp)
-density_as_func_proba_span_bis(csv_file2,1000)
-#classification_prediction(val,size,model)
+classification_prediction_span(val,size,size_samp,savepath,myseed,model,data_type='val')
+classification_prediction_span(test,size,1000,savepath,myseed,model,data_type='test')
+csv_file_val=savepath+'predictions_class_span_bw_v_h_res_'+str(size)+'_'+str(size_samp)+'_'+str(myseed)+'_val.csv'
+csv_file_test=savepath+'predictions_class_span_bw_v_h_res_'+str(size)+'_'+str(size_samp)+'_'+str(myseed)+'_test.csv'
+
+density_as_func_proba_span_bis(csv_file_val,size_samp)
+density_as_func_proba_span_bis(csv_file_test,1000)
+
 
 print('--> finished!')
