@@ -1,31 +1,18 @@
 #!/usr/bin/env python
-# coding: utf-8
-
 # ## Pytorch code percolation model with ResNet18
-
-# ## parameter choices
-
-# In[1]:
 from __future__ import print_function, division
 import os
 import numpy as np
 import torch
-import torchvision
 from torchsummary import summary
 from torch.optim import lr_scheduler
 from torchvision import models, transforms
-from sklearn.metrics import confusion_matrix
-from sklearn.preprocessing import LabelEncoder
 import pandas as pd
-import time
-import pickle
-import copy
 import random
 import sys
-sys.path.insert(0, '/home/p/phrhmb/Perco/MLCode') # RAR
+sys.path.insert(0, '/home/p/phrhmb/Perco/MLCode')  #absolute path of MLtools file
 from MLtools import *
 import sklearn
-import re
 #############################################################################################
 #print(sys.argv)
 if ( len(sys.argv) == 8 ):
@@ -40,7 +27,7 @@ if ( len(sys.argv) == 8 ):
 
 else:
     print ('Number of', len(sys.argv), \
-           'arguments is less than expected (2) --- ABORTING!')
+           'arguments is less than expected (8) --- ABORTING!')
 print('--> defining parameters')
     
 myseed=SEED
@@ -52,13 +39,13 @@ batch_size=my_batch_size
 num_epochs= my_num_epochs
 training_set=0
 validation_set=0
-
-# everyone
-myDATAPATH='/home/p/phrhmb/Perco/Data/'+'L'+str(size)+'_rename/L'+str(size)+'_rename/'
-myCSV='/home/p/phrhmb/Perco/Data_csv/data_100_10000_renamed_shuffled_with_p.csv'
+#SET THE PATH FOR DIRECTORIES OF THE TRAINING/TEST DATASETS AND PATH TO CSV
+##################################################################################################
+myDATAPATH='/home/p/phrhmb/Perco/Data/'+'L'+str(size)+'/'
+myCSV='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_10000.csv'
 myTESTPATH='/home/p/phrhmb/Perco/Data/'+'L'+str(size)+'_test_1000/'
-myCSV_TEST='/home/p/phrhmb/Perco/Data_csv/'+'data_pkl_100_test_1000_1000.csv'
-
+myCSV_TEST='/home/p/phrhmb/Perco/Data_csv/'+'data_pkl_100_test_1000.csv'
+##################################################################################################
 print('--> defining files and directories')
 dataname='Perco-data-bw-very-hres-density-L'+str(size)+'-'+str(nimages)+'_'+str(size_samp)+'_s'+str(myseed)
 datapath=myDATAPATH     
@@ -88,12 +75,7 @@ torch.cuda.manual_seed(myseed+3)
 #torch.cuda.seed()
 #torch.cuda.seed_all()
 random.seed(myseed+4)
-def seed_worker(worker_id):
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
-g = torch.Generator()
-g.manual_seed(myseed+5)
+
 print('--> defining ML lib versions and devices')
 print('torch version:',torch.__version__)
 print('sklearn version:', sklearn.__version__)
@@ -109,7 +91,7 @@ print('--> reading CSV data')
 print(os.getcwd())
 whole_dataset = Dataset_csv_pkl(csv_file=myCSV,root_dir=myDATAPATH,
 size=size,classe_type='density',array_type='bw',
-type_file='symlink',transform=transforms.ToTensor())
+type_file='normal',transform=transforms.ToTensor())
 test_dataset =Dataset_csv_pkl(csv_file=myCSV_TEST,
                                      root_dir=myTESTPATH,size=size, classe_type='density',
                                 array_type='bw',transform=transforms.ToTensor())
@@ -143,14 +125,14 @@ class_names =whole_dataset.classes
 inputs,labels,paths=next(iter(train))
 img_sizeX,img_sizeY= inputs.shape[-1],inputs.shape[-2]
 num_of_train_samples = len(training_set) # total training samples
-num_of_test_samples = len(validation_set) #total validation samples
+num_of_val_samples = len(validation_set) #total validation samples
 steps_per_epoch = np.ceil(num_of_train_samples // batch_size)
 number_classes = len(class_names)
 print('--> protocolling set-up')
 print('number of samples in the training set:', num_of_train_samples)
-print('number of samples in the validation set:', num_of_test_samples )
-print('number of samples in a batch',len(train)) 
-print('number of samples in a batch',len(val))
+print('number of samples in the validation set:', num_of_val_samples )
+print('number of samples in a train batch',len(train)) 
+print('number of samples in a val batch',len(val))
 print('number of classes',number_classes )
 
 # ## building the CNN
@@ -200,12 +182,11 @@ size_samp=1000
 str_classes_names=" ".join(str(x) for x in class_names)
 print('--> computing/saving confusion matrices')
 cm=simple_confusion_matrix(model,test,device,number_classes,class_names)
-np.savetxt(savepath+method+'_'+dataname+'cm_test_redo.txt',cm,fmt='%d',header=str_classes_names)
+np.savetxt(savepath+method+'_'+dataname+'cm_test.txt',cm,fmt='%d',header=str_classes_names)
 
 print('--> computing/saving classification outputs')
-classification_prediction_dens(test,size,model,whole_dataset,savepath,31,'test_redo')
-
-csv_file=savepath+'predictions_class_density_bw_v_h_res_'+str(size)+'_'+str(myseed)+'_test_redo.csv'
+classification_prediction_dens(test,size,model,whole_dataset,savepath,31,'test')
+csv_file=savepath+'predictions_class_density_bw_v_h_res_'+str(size)+'_'+str(myseed)+'_test.csv'
 #density_as_func_proba_density(csv_file,size_samp)
 #classification_prediction_bis(val,size,model)
 
