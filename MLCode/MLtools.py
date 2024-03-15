@@ -15,6 +15,7 @@ import re
 import itertools
 import matplotlib.ticker as plticker
 import time
+from torch import nn
 #from ray import tune
 #from ray.tune import CLIReporter
 #from ray.tune.schedulers import ASHAScheduler
@@ -22,9 +23,7 @@ import copy
 from tqdm import tqdm, trange
 ###################################################################################################
 def train_model(model,train,val,device,criterion, optimizer, num_epochs, scheduler,savepath, method,dataname,modelname,modelpath,batch_size,class_names):
-"""
-        Function for classification training.
-        """
+    #Function for classification training.
     start_epoch=0
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
