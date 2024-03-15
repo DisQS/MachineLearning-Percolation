@@ -11,12 +11,14 @@ from torchsummary import summary
 import pandas as pd
 import random
 import sys
-sys.path.insert(0, '/home/p/phrhmb/Perco/MLCode')  #absolute path of MLtools file
+sys.path.insert(0, '/storage/disqs/ML-Percolation/MachineLearning-Percolation/MLCode')  #absolute path of MLtools file
 from MLtools import *
 import sklearn
 
 ###########################################################################################
+print(sys.argv)
 if ( len(sys.argv) == 8 ):
+    print(sys.argv)
     #SEED = 101
     SEED = int(sys.argv[1])
     my_size= int(sys.argv[2])
@@ -27,7 +29,7 @@ if ( len(sys.argv) == 8 ):
     flag=int(sys.argv[7])
 else:
     print ('Number of', len(sys.argv), \
-           'arguments is less than expected (2) --- ABORTING!')
+           'arguments is less than expected (8) --- ABORTING!')
 print('--> defining parameters')
 
 myseed=SEED
@@ -40,11 +42,11 @@ training_set=0
 validation_set=0
 #SET THE PATH FOR DIRECTORIES OF THE TRAINING/TEST DATASETS AND PATH TO CSV
 ##################################################################################################
-myDATAPATH='/home/p/phrhmb/Perco/Data/L'+str(size)+'/'
-myTEST='/home/p/phrhmb/Perco/Data/L'+str(size)+'_test'
-myCSV='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_10000.csv'
-myCSV_test='/home/p/phrhmb/Perco/Data_csv/data_pkl_100_test_1000.csv'
-dataname='Perco-data-bw-very-hres-span-L'+str(size)+'_'+str(size_samp)+'_s'+str(myseed)
+myDATAPATH='../../Data/L'+str(size)+'/'
+myTEST='/home/physics/phrhmb/Desktop/to_delete_sulis/test/L100'#'/../../Data/L'+str(size)+'_test'
+myCSV='../../Data_csv/data_pkl_100_10000.csv'
+myCSV_test='../../Data_csv/data_pkl_100_test_1000.csv'
+dataname='Perco-data-bw-very-hres-span-L'+str(size)+'-'+str(size)+'-s'+str(size)+'_'+str(size_samp)+'_s'+str(myseed)
 #############################################################################################
 def density_as_func_proba_span_bis(csv_file,size_samp=10000,data_type='val',data_range=''):
     data=pd.read_csv(csv_file)
@@ -132,12 +134,7 @@ torch.cuda.manual_seed(myseed+3)
 #torch.cuda.seed()
 #torch.cuda.seed_all()
 random.seed(myseed+4)
-def seed_worker(worker_id):
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
-g = torch.Generator()
-g.manual_seed(myseed+5)
+
 print('--> defining ML lib versions and devices')
 print('torch version:',torch.__version__)
 print('sklearn version:', sklearn.__version__)
@@ -149,92 +146,161 @@ device=t.device
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
 print('chosen device: ',device)
+if flag==0:
+    print('--> reading CSV data')
+    print(os.getcwd())
+    train_dataset = Dataset_csv_pkl(csv_file=myCSV,
+                                         root_dir=myDATAPATH, classe_type='span',
+                                     array_type='bw',type_file='normal',data_type='pkl',transform=transforms.ToTensor())
 
-print('--> reading CSV data')
-print(os.getcwd())
-train_dataset = Dataset_csv_pkl(csv_file=myCSV,
-                                     root_dir=myDATAPATH, classe_type='span',
-                                array_type='bw',type_file='normal',data_type='pkl',transform=transforms.ToTensor())
-
-test_dataset=Dataset_csv_pkl(csv_file=myCSV_test,
+    test_dataset=Dataset_csv_pkl(csv_file=myCSV_test,
                                      root_dir=myTEST, classe_type='span',
                                 array_type='bw',data_type='pkl',transform=transforms.ToTensor())
 
-os.getcwd()
-data_size = len(train_dataset)+len(val_dataset)
-split=int(np.floor(validation_split*data_size))
-training=len(train_dataset)
-# split the data into training and validation
-training_set, validation_set= torch.utils.data.random_split(whole_dataset,(training,split))
-print('--> loading training data')
-train = torch.utils.data.DataLoader(
-        dataset=train_dataset,
-        batch_size=batch_size,
-        num_workers=16,
-        shuffle=True)
-print('--> loading validation data')
-val = torch.utils.data.DataLoader(
-        dataset=validation_set,
-        batch_size=batch_size,
-        num_workers=16,
-        shuffle=False)
-test= train = torch.utils.data.DataLoader(
-        dataset=test_dataset,
-        batch_size=batch_size,
-        num_workers=16,
-        shuffle=True)
-print('--> defining classes/labels')
-class_names =val_dataset.classes
-inputs,labels,paths=next(iter(train))
-img_sizeX,img_sizeY= inputs.shape[-1],inputs.shape[-2]
-num_of_train_samples = len(train_dataset) # total training samples
-num_of_test_samples = len(val_dataset) #total validation samples
-steps_per_epoch = np.ceil(num_of_train_samples // batch_size)
-number_classes = len(class_names)
-print('number of samples in the training set:', num_of_train_samples)
-print('number of samples in the validation set:', num_of_test_samples )
-print('number of samples in a batch',len(train)) 
-print('number of samples in a batch',len(val))
-print('number of classes',number_classes )
+    os.getcwd()
+    data_size = len(train_dataset)+len(val_dataset)
+    split=int(np.floor(validation_split*data_size))
+    training=len(train_dataset)
+    # split the data into training and validation
+    training_set, validation_set= torch.utils.data.random_split(whole_dataset,(training,split))
+    print('--> loading training data')
+    train = torch.utils.data.DataLoader(
+            dataset=train_dataset,
+            batch_size=batch_size,
+           num_workers=16,
+           shuffle=True)
+    print('--> loading validation data')
+    val = torch.utils.data.DataLoader(
+             dataset=validation_set,
+             batch_size=batch_size,
+             num_workers=16,
+             shuffle=False)
+    test = torch.utils.data.DataLoader(
+             dataset=test_dataset,
+             batch_size=batch_size,
+             num_workers=16,
+             shuffle=True)
+    print('--> defining classes/labels')
+    class_names =val_dataset.classes
+    inputs,labels,paths=next(iter(train))
+    img_sizeX,img_sizeY= inputs.shape[-1],inputs.shape[-2]
+    num_of_train_samples = len(train_dataset) # total training samples
+    num_of_test_samples = len(val_dataset) #total validation samples
+    steps_per_epoch = np.ceil(num_of_train_samples // batch_size)
+    number_classes = len(class_names)
+    print('number of samples in the training set:', num_of_train_samples)
+    print('number of samples in the validation set:', num_of_test_samples )
+    print('number of samples in a batch',len(train)) 
+    print('number of samples in a batch',len(val))
+    print('number of classes',number_classes )
 
-# ## building the CNN
-model=models.resnet18(pretrained=True, progress=True)
-model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-num_ftrs = model.fc.in_features # number of input features of the last layer which is fully connected (fc)
-#We modify the last layer in order to have nb_output: number_classes
-model.fc=nn.Linear(num_ftrs, number_classes )
- #the model is sent to the GPU
-model = model.to(device)
-print(model)
-print('#############################')
-print(summary(model, (1, 100,100)))
-# defining the optimizer
-print('--> defining optimizer')
-#optimizer=torch.optim.Adadelta(model.parameters(), lr=1.0, rho=0.9, eps=1e-06, weight_decay=0)
-optimizer=torch.optim.Adam(model.parameters(),lr=0.001)
-# defining the loss function
-criterion = nn.CrossEntropyLoss()
-exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+    # ## building the CNN
+    model=models.resnet18(pretrained=True, progress=True)
+    model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    num_ftrs = model.fc.in_features # number of input features of the last layer which is fully connected (fc)
+    #We modify the last layer in order to have nb_output: number_classes
+    model.fc=nn.Linear(num_ftrs, number_classes )
+  #the model is sent to the GPU
+    model = model.to(device)
+    print(model)
+    print('#############################')
+    print(summary(model, (1, 100,100)))
+    # defining the optimizer
+    print('--> defining optimizer')
+    #optimizer=torch.optim.Adadelta(model.parameters(), lr=1.0, rho=0.9, eps=1e-06, weight_decay=0)
+    optimizer=torch.optim.Adam(model.parameters(),lr=0.001)
+    # defining the loss function
+    criterion = nn.CrossEntropyLoss()
+    exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
-# checking if GPU is available
-if torch.cuda.is_available():
-    model = model.cuda()
-    criterion = criterion.cuda()
-print('--> starting training epochs')
-print('number of epochs',num_epochs)
-print('batch_size',batch_size)
-print('number of classes',number_classes)
-#the model is sent to the GPU
-model = model.to(device)
-model=model.double()
-if flag==0:
-	base_model = train_model(
+   # checking if GPU is available
+    if torch.cuda.is_available():
+        model = model.cuda()
+        criterion = criterion.cuda()
+    print('--> starting training epochs')
+    print('number of epochs',num_epochs)
+    print('batch_size',batch_size)
+    print('number of classes',number_classes)
+    #the model is sent to the GPU
+    model = model.to(device)
+    model=model.double()
+
+    base_model = train_model(
    	 model,train,val,device, criterion, optimizer,num_epochs,exp_lr_scheduler,savepath, method,dataname,modelname,modelpath,
   	  batch_size,class_names )
 else:
+    print('--> reading CSV data')
+    print('cwd',os.getcwd())
+    test_dataset=Dataset_csv_pkl(csv_file=myCSV_test,
+                                     root_dir=myTEST, classe_type='span',
+                                array_type='bw',data_type='pkl',transform=transforms.ToTensor())
+
+    os.getcwd()
+   
+    test = torch.utils.data.DataLoader(
+            dataset=test_dataset,
+            batch_size=batch_size,
+            num_workers=16,
+            shuffle=True)
+    print('--> defining classes/labels')
+    class_names =test_dataset.classes
+    inputs,labels,paths=next(iter(test))
+    img_sizeX,img_sizeY= inputs.shape[-1],inputs.shape[-2]
+    num_of_test_samples = len(test_dataset) #total validation samples
+    steps_per_epoch = np.ceil(num_of_test_samples // batch_size)
+    number_classes = len(class_names)
+    print('number of samples in the test set:', num_of_test_samples )
+    print('number of samples in a batch',len(test))
+    print('number of classes',number_classes )
+
+    # ## building the CNN
+    model=models.resnet18(pretrained=True, progress=True)
+    model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    num_ftrs = model.fc.in_features # number of input features of the last layer which is fully connected (fc)
+    #We modify the last layer in order to have nb_output: number_classes
+    model.fc=nn.Linear(num_ftrs, number_classes )
+   #the model is sent to the GPU
+    model = model.to(device)
+    print(model)
+    print('#############################')
+    print(summary(model, (1, 100,100)))
+    # defining the optimizer
+    print('--> defining optimizer')
+    optimizer=torch.optim.Adadelta(model.parameters(), lr=1.0, rho=0.9, eps=1e-06, weight_decay=0)
+    #optimizer=torch.optim.Adam(model.parameters(),lr=0.001)
+    # defining the loss function
+    criterion = nn.CrossEntropyLoss()
+    exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+
+   # checking if GPU is available
+    if torch.cuda.is_available():
+        model = model.cuda()
+        criterion = criterion.cuda()
+    print('--> starting training epochs')
+    print('number of epochs',num_epochs)
+    print('batch_size',batch_size)
+    print('number of classes',number_classes)
+    #the model is sent to the GPU
+    model = model.to(device)
+    model=model.double()
+
     print('--> loading saved model')
-    print('--> loading saved model')
-    checkpoint=torch.load(modelpath+'_epochs_19.pth')
+    temp_list_model=[files for files in os.listdir(savepath) if files.endswith('.pth') ]
+    print(savepath)
+    print(temp_list_model)
+    print('#############################')
+    first_parameter = next(model.parameters())
+    input_length = len(first_parameter.size())
+    if len(temp_list_model)!=0:
+        list_model=[savepath + files for files in temp_list_model]
+        print('ok')
+    else:
+        print('no model saved')
+    print(list_model[0])
+    print(os.getcwd())
+    list_model.sort(key=os.path.getctime)
+    print(list_model)
+    checkpoint=torch.load(list_model[-1])
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     val_loss=checkpoint['val loss']
@@ -243,17 +309,11 @@ else:
     model.eval()
 print('--> computing/saving confusion matrices')
 str_classes_names=" ".join(str(x) for x in class_names)
-cm=simple_confusion_matrix(model,val,device,number_classes,class_names)
-np.savetxt(savepath+method+'_'+dataname+'cm_val_best.txt',cm,fmt='%d')
 cm_test=simple_confusion_matrix(model,test,device,number_classes,class_names)
 np.savetxt(savepath+method+'_'+dataname+'cm_test_best.txt',cm_test,fmt='%d')
 print('--> computing/saving classification outputs')
-classification_prediction_span(val,size,size_samp,savepath,myseed,model,data_type='val')
 classification_prediction_span(test,size,1000,savepath,myseed,model,data_type='test')
-csv_file_val=savepath+'predictions_class_span_bw_v_h_res_'+str(size)+'_'+str(size_samp)+'_'+str(myseed)+'_val.csv'
 csv_file_test=savepath+'predictions_class_span_bw_v_h_res_'+str(size)+'_'+str(size_samp)+'_'+str(myseed)+'_test.csv'
-
-density_as_func_proba_span_bis(csv_file_val,size_samp)
 density_as_func_proba_span_bis(csv_file_test,1000)
 
 
