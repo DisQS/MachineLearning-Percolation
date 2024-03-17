@@ -43,7 +43,7 @@ validation_set=0
 #SET THE PATH FOR DIRECTORIES OF THE TRAINING/TEST DATASETS AND PATH TO CSV
 ##################################################################################################
 myDATAPATH='../../Data/L'+str(size)+'/'
-myTEST='/home/physics/phrhmb/Desktop/to_delete_sulis/test/L100'#'/../../Data/L'+str(size)+'_test'
+myTEST='../../Data/L'+str(size)+'_test'
 myCSV='../../Data_csv/data_pkl_100_10000.csv'
 myCSV_test='../../Data_csv/data_pkl_100_test_1000.csv'
 dataname='Perco-data-bw-very-hres-span-L'+str(size)+'-'+str(size)+'-s'+str(size)+'_'+str(size_samp)+'_s'+str(myseed)
