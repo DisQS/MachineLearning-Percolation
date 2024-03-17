@@ -207,8 +207,8 @@ if flag==0:
     print(summary(model, (1, 100,100)))
     # defining the optimizer
     print('--> defining optimizer')
-    #optimizer=torch.optim.Adadelta(model.parameters(), lr=1.0, rho=0.9, eps=1e-06, weight_decay=0)
-    optimizer=torch.optim.Adam(model.parameters(),lr=0.001)
+    optimizer=torch.optim.Adadelta(model.parameters(), lr=1.0, rho=0.9, eps=1e-06, weight_decay=0)
+    #optimizer=torch.optim.Adam(model.parameters(),lr=0.001)
     # defining the loss function
     criterion = nn.CrossEntropyLoss()
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
